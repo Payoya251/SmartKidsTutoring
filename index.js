@@ -19,16 +19,16 @@ app.get('/health', (req, res) => {
 //  console.log(`App listening on port ${port}`);
 //});
 
-//app.listen(port, '0.0.0.0', () => {
-//  console.log(`Listening at http://0.0.0.0:${port}`);
-//});
-
-
-const options = {
-  key: fs.readFileSync('path/to/private-key.pem'),
-  cert: fs.readFileSync('path/to/certificate.pem')
-};
-
-https.createServer(options, app).listen(port, '0.0.0.0', () => {
-  console.log(`Secure server running on port ${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Listening at http://0.0.0.0:${port}`);
 });
+
+
+//const options = {
+//  key: fs.readFileSync('path/to/private-key.pem'),
+//  cert: fs.readFileSync('path/to/certificate.pem')
+//};
+
+//https.createServer(options, app).listen(port, '0.0.0.0', () => {
+//  console.log(`Secure server running on port ${port}`);
+//});

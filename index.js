@@ -8,6 +8,11 @@ app.get('/', (req, res) => {
   res.send('Hello World from SmartKidsTutoring!');
 });
 
+// Add the health check endpoint
+app.get('/health', (req, res) => {
+  res.sendStatus(200); // Send a 200 OK status
+});
+
 app.listen(port, () => {
   console.log(`App listening at port ${port}`);
 });

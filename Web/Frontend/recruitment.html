@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join Us | Sharp Kids Tutoring</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+
+  <button class="toggle-btn" id="toggle-btn">&#9776;</button>
+
+
+  <div class="sidebar" id="sidebar">
+    <div class="logo"><img src="logo.png" alt="Logo" /></div>
+    <nav>
+      <ul>
+        <li><a href="Homepage.html">Home</a></li>
+        <li><a href="Recruitment.html" class="active">Recruitment</a></li>
+        <li><a href="ContactUs.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+
+
+  <div class="content">
+    <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
+    <h1>Become a Volunteer Tutor ✏️</h1>
+    <p class="centered-text">
+      Help students succeed while gaining leadership, teaching, and communication experience. Join our Sharp Kids Tutoring team today!
+    </p>
+
+
+    <div class="card">
+      <form>
+        <label for="name">Full Name *</label>
+        <input type="text" id="name" name="name" required>
+
+
+        <label for="email">Email Address *</label>
+        <input type="email" id="email" name="email" required>
+
+
+        <label for="subject">Subjects You Can Tutor</label>
+        <input type="text" id="subject" name="subject" placeholder="e.g. Math, English, Science">
+
+
+        <label for="availability">Availability</label>
+        <input type="text" id="availability" name="availability" placeholder="Weekdays, Weekends, Time Zones">
+
+
+        <label for="message">Why do you want to join?</label>
+        <textarea id="message" name="message" placeholder="Tell us why you're passionate about tutoring!"></textarea>
+
+
+        <button type="submit" class="btn primary">Submit Application</button>
+      </form>
+    </div>
+  </div>
+
+
+  <script src="script.js"></script>
+</body>
+</html>

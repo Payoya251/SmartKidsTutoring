@@ -47,7 +47,7 @@ connectDB();
 
 
 
-
+// Check mongodb connection
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://anthonyventura2324:36kgQwCf6zqWEiDa@smartkidstutoring.jahng0c.mongodb.net/?retryWrites=true&w=majority&appName=SmartKidsTutoring";
 

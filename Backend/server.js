@@ -5,7 +5,7 @@ const { MongoClient } = require('mongodb');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 5000; // Use a port, process.env.PORT is for Render
+const port = process.env.PORT || 3000; // Use a port, process.env.PORT is for Render
 
 app.use(cors()); // Allow cross-origin requests
 app.use(bodyParser.json()); // Parse JSON bodies
@@ -26,7 +26,7 @@ async function connectDB() {
 connectDB();
 
 // 3. Handle the POST request from the form
-app.post('http://localhost:5000/api/tutors', async (req, res) => {
+app.post('http://localhost:3000/api/tutors', async (req, res) => {
   const tutorData = req.body; // Data from the form
 
   try {

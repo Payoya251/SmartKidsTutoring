@@ -107,6 +107,83 @@
       display: none;
       margin-top: 5px;
     }
+    /* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: #ffffff;
+  border-right: 3px solid #f2d060;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  padding-top: 20px;
+}
+
+.sidebar.show {
+  left: 0;
+}
+
+.sidebar .logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  text-align: center;
+}
+
+.sidebar nav ul li a {
+  display: block;
+  padding: 14px 20px;
+  color: #111;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a.active {
+  background-color: #f2d060;
+  color: #000;
+}
+
+/* TOGGLE BUTTON */
+.toggle-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 24px;
+  background-color: #f2d060;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+/* RESPONSIVE */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    left: -100%;
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+
+  .content {
+    padding: 70px 20px;
+    margin-left: 0;
+  }
+
+  .sidebar.show ~ .content {
+    margin-left: 0;
+  }
+}
   </style>
 </head>
 <body>

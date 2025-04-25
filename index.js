@@ -21,7 +21,7 @@ app.listen(port, '0.0.0.0', () => {
   console.log(`App listening on port ${port}`);
 });
 
-
+/*
 // check mongodb connection
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
@@ -39,4 +39,5 @@ async function connectDB() {
   }
 }
 connectDB();
+*/
 

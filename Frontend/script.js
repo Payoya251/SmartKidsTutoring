@@ -1,17 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const hamburger = document.getElementById('hamburger');
+  const toggleButton = document.getElementById('toggle-btn'); // Changed variable name to toggleButton
   const sidebar = document.getElementById('sidebar');
 
-  if (hamburger && sidebar) {
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('open');
+  if (toggleButton && sidebar) {
+    toggleButton.addEventListener('click', () => {
+      toggleButton.classList.toggle('open');
       sidebar.classList.toggle('show');
     });
 
     const sidebarLinks = sidebar.querySelectorAll('a');
     sidebarLinks.forEach(link => {
       link.addEventListener('click', () => {
-        hamburger.classList.remove('open');
+        toggleButton.classList.remove('open');
         sidebar.classList.remove('show');
       });
     });

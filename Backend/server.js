@@ -26,7 +26,7 @@ async function connectDB() {
 connectDB();
 
 // 3. Handle the POST request from the form
-app.post('/api/tutors', async (req, res) => {
+app.post('http://localhost:5000/api/tutors', async (req, res) => {
   const tutorData = req.body; // Data from the form
 
   try {
@@ -51,7 +51,7 @@ app.listen(port, '0.0.0.0', () => {
 });
 
 //newcode to see if the data arrives ti backend
-app.post('/api/tutors', async (req, res) => {
+app.post('http://localhost:5000/api/tutors', async (req, res) => {
   console.log('Tutor Data Received:', req.body); // Debugging
   const tutorData = req.body;
 

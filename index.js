@@ -10,7 +10,7 @@ app.use(express.static(path.join(__dirname, 'Frontend')));
 
 // Explicitly serve index.html for the root path AFTER setting up static files
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, 'Frontend', 'Homepage.html'));
 });
 
 app.get('/health', (req, res) => {

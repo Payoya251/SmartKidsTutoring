@@ -7,7 +7,8 @@ app.get('/', (req, res) => {
   res.send('Hello World from SmartKidsTutoring!');
 });
 
-app.use(express.static(path.join(__dirname, 'Frontend')));
+// Use folder Frontend to use the html code from there
+//app.use(express.static(path.join(__dirname, 'Frontend')));
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });

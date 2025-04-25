@@ -46,6 +46,27 @@ app.post('/api/tutors', async (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
+});
+
+//newcode to see if the data arrives ti backend
+app.post('/api/tutors', async (req, res) => {
+  console.log('Tutor Data Received:', req.body); // Debugging
+  const tutorData = req.body;
+
+  try {
+    const db = client.db(process.env.DB_NAME);
+    const collection = db.collection('tutors');
+
+    const result = await collection.insertOne(tutorData);
+
+    res.status(201).json({
+      message: 'Application submitted successfully!',
+      insertedId: result.insertedId,
+    });
+  } catch (err) {
+    console.error('MongoDB Error:', err);
+    res.status(500).json({ message: 'Failed to save application.' });
+  }
 });

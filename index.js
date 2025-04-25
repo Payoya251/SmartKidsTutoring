@@ -23,6 +23,7 @@ app.listen(port, '0.0.0.0', () => {
 
 
 //NEW CODE
+console.log("MongoDB URI:", process.env.MONGODB_URI);
 // check mongodb connection
 const { MongoClient } = require('mongodb');
 require('dotenv').config();

@@ -72,7 +72,7 @@
 
       // 2. Send Data to Backend
       try {
-        const response = await fetch('/api/tutors', { // Your backend API endpoint
+        const response = await fetch('http://localhost:5000/api/tutors', { // Your backend API endpoint
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up | SharpKidsTutoring</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Raleway:wght@400;500&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -10,9 +13,6 @@
       color: #264653;
       padding: 40px;
     }
-
-
-
 
     .container {
       max-width: 600px;
@@ -23,26 +23,17 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-
-
-
     h2 {
       color: #2a9d8f;
       margin-bottom: 20px;
       text-align: center;
     }
 
-
-
-
     label {
       display: block;
       margin-top: 15px;
       font-weight: 600;
     }
-
-
-
 
     input {
       width: 100%;
@@ -51,9 +42,6 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
-
-
-
 
     button {
       background-color: #2a9d8f;
@@ -67,23 +55,14 @@
       font-size: 16px;
     }
 
-
-
-
     button:hover {
       background-color: #21867a;
     }
-
-
-
 
     .back-link {
       text-align: center;
       margin-top: 20px;
     }
-
-
-
 
     .back-link a {
       color: #2a9d8f;
@@ -91,15 +70,9 @@
       font-weight: bold;
     }
 
-
-
-
     .back-link a:hover {
       text-decoration: underline;
     }
-
-
-
 
     .error {
       color: red;
@@ -107,88 +80,13 @@
       display: none;
       margin-top: 5px;
     }
-    /* SIDEBAR */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: -250px;
-  width: 250px;
-  height: 100%;
-  background-color: #ffffff;
-  border-right: 3px solid #f2d060;
-  transition: left 0.3s ease;
-  z-index: 1000;
-  padding-top: 20px;
-}
-
-.sidebar.show {
-  left: 0;
-}
-
-.sidebar .logo {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.sidebar nav ul {
-  list-style: none;
-  padding: 0;
-  text-align: center;
-}
-
-.sidebar nav ul li a {
-  display: block;
-  padding: 14px 20px;
-  color: #111;
-  font-weight: 500;
-  transition: background 0.3s ease;
-}
-
-.sidebar nav ul li a:hover,
-.sidebar nav ul li a.active {
-  background-color: #f2d060;
-  color: #000;
-}
-
-/* TOGGLE BUTTON */
-.toggle-btn {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  font-size: 24px;
-  background-color: #f2d060;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  z-index: 1100;
-}
-
-/* RESPONSIVE */
-@media screen and (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    left: -100%;
-  }
-
-  .sidebar.show {
-    left: 0;
-  }
-
-  .content {
-    padding: 70px 20px;
-    margin-left: 0;
-  }
-
-  .sidebar.show ~ .content {
-    margin-left: 0;
-  }
-}
   </style>
 </head>
 <body>
 
-      <div class="sidebar" id="sidebar">
+  <button class="toggle-btn" id="toggle-btn">&#9776;</button>
+
+  <div class="sidebar" id="sidebar">
     <div class="logo">
       <img src="logo.png" alt="Sharp Kids Tutoring Logo">
     </div>
@@ -196,7 +94,7 @@
       <ul>
         <li><a href="Homepage.html">Home</a></li>
         <li><a href="AboutUs.html">About Us</a></li>
-        <li><a href="Appointment.html" class="active">Appointment</a></li>
+        <li><a href="Appointment.html">Appointment</a></li>
         <li><a href="Blog.html">Blog</a></li>
         <li><a href="Services.html">Services</a></li>
         <li><a href="Recruitment.html">Join as Tutor</a></li>
@@ -207,84 +105,50 @@
     </nav>
   </div>
 
-
-
-
-  <div class="container">
+  <div class="container content">
     <h2>Create Your Account</h2>
     <form id="signupForm" action="studentDashboard.html" method="post" onsubmit="return validateCode()">
-
-
-
 
       <label for="name">Full Name</label>
       <input type="text" id="name" name="name" required>
 
-
-
-
       <label for="email">Email Address</label>
       <input type="email" id="email" name="email" required>
-
-
-
 
       <label for="username">Username</label>
       <input type="text" id="username" name="username" required>
 
-
-
-
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required>
-
-
-
 
       <label for="code">6-Digit Code (Provided by Tutor Assigner)</label>
       <input type="text" id="code" name="code" pattern="\d{6}" maxlength="6" required>
       <div class="error" id="codeError">Please enter a valid 6-digit code.</div>
 
-
-
-
       <button type="submit">Sign Up</button>
     </form>
-
-
-
 
     <div class="back-link">
       <a href="Login.html">Already have an account? Log in</a>
     </div>
   </div>
 
-
-
+  <script src="script.js"></script>
   <script>
     function validateCode() {
       const codeInput = document.getElementById('code');
       const error = document.getElementById('codeError');
       const code = codeInput.value.trim();
 
-
-
-
       if (!/^\d{6}$/.test(code)) {
         error.style.display = 'block';
         return false;
       }
 
-
-
-
       error.style.display = 'none';
       return true;
     }
   </script>
-
-
-
 
 </body>
 </html>

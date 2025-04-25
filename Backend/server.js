@@ -25,8 +25,23 @@ async function connectDB() {
 }
 connectDB();
 
+const cors = require('cors');
+app.use(cors({origin: 'http://localhost:3000'}));
+
+app.use(async (req, res, next) => {
+  try {
+    await client.db(process.env.DB_NAME).command({ ping: 1 });
+    console.log('MongoDB is connected');
+    next();
+  } catch (err) {
+    console.error('MongoDB connection issue:', err);
+    res.status(500).send('Database is unavailable');
+  }
+});
+
+
 // 3. Handle the POST request from the form
-app.post('http://localhost:3000/api/tutors', async (req, res) => {
+app.post('/api/tutors', async (req, res) => {
   const tutorData = req.body; // Data from the form
 
   try {

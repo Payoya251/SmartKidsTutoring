@@ -2,84 +2,47 @@ require('dotenv').config(); // Load environment variables
 const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
-const cors = require('cors'); // ✅ Only once!
-
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors()); // ✅ Only once!
+app.use(cors());
 app.use(bodyParser.json());
 
-// MongoDB Connection
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
 async function connectDB() {
-  try {
-    await client.connect();
-    console.log('Connected to MongoDB!');
-  } catch (err) {
-    console.error('Failed to connect:', err);
-    process.exit(1);
-  }
+    try {
+        await client.connect();
+        console.log('Connected to MongoDB for Tutor Applications!');
+    } catch (err) {
+        console.error('Failed to connect to MongoDB:', err);
+        process.exit(1);
+    }
 }
 connectDB();
 
-// MongoDB connection check middleware
-app.use(async (req, res, next) => {
-  try {
-    await client.db(process.env.DB_NAME).command({ ping: 1 });
-    console.log('MongoDB is connected');
-    next();
-  } catch (err) {
-    console.error('MongoDB connection issue:', err);
-    res.status(500).send('Database is unavailable');
-  }
-});
-
-// POST for tutor applications
 app.post('/api/tutors', async (req, res) => {
-  const tutorData = req.body;
+    const tutorData = req.body;
 
-  try {
-    const db = client.db(process.env.DB_NAME);
-    const collection = db.collection('tutors');
+    try {
+        const db = client.db(process.env.DB_NAME);
+        const tutorsCollection = db.collection('tutors'); // Collection name for tutor applications
 
-    const result = await collection.insertOne(tutorData);
+        const result = await tutorsCollection.insertOne(tutorData);
 
-    res.status(201).json({
-      message: 'Application submitted successfully!',
-      insertedId: result.insertedId,
-    });
-  } catch (err) {
-    console.error('MongoDB Error:', err);
-    res.status(500).json({ message: 'Failed to save application.' });
-  }
+        res.status(201).json({
+            message: 'Tutor application submitted successfully!',
+            insertedId: result.insertedId,
+        });
+    } catch (error) {
+        console.error('MongoDB Error saving tutor application:', error);
+        res.status(500).json({ message: 'Failed to save tutor application.' });
+    }
 });
 
-// POST for the other form
-app.post('/api/other-form', async (req, res) => {
-  console.log('Other Form Data Received:', req.body);
-  const formData = req.body;
-
-  try {
-    const db = client.db(process.env.DB_NAME);
-    const collection = db.collection('otherCollection');
-
-    const result = await collection.insertOne(formData);
-
-    res.status(201).json({
-      message: 'Other form data received and saved!',
-      insertedId: result.insertedId,
-    });
-  } catch (err) {
-    console.error('MongoDB Error:', err);
-    res.status(500).json({ message: 'Failed to save other form data.' });
-  }
-});
-
-// Start server
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });

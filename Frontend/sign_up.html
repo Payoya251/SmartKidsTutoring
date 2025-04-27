@@ -73,14 +73,6 @@
     .back-link a:hover {
       text-decoration: underline;
     }
-
-    .error {
-      color: red;
-      font-size: 13px;
-      display: none;
-      margin-top: 5px;
-    }
-    /* REMOVE DUPLICATE SIDEBAR AND TOGGLE BUTTON STYLES */
   </style>
 </head>
 <body>
@@ -94,6 +86,7 @@
     <nav>
       <ul>
         <li><a href="Homepage.html">Home</a></li>
+        <li><a href="login.html">Login</a></li>
         <li><a href="AboutUs.html">About Us</a></li>
         <li><a href="Appointment.html">Appointment</a></li>
         <li><a href="Blog.html">Blog</a></li>
@@ -108,8 +101,7 @@
 
   <div class="container content">
     <h2>Create Your Account</h2>
-    <form id="signupForm" action="studentDashboard.html" method="post" onsubmit="return validateCode()">
-
+    <form id="signupForm">
       <label for="name">Full Name</label>
       <input type="text" id="name" name="name" required>
 
@@ -122,33 +114,50 @@
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required>
 
-      <label for="code">6-Digit Code (Provided by Tutor Assigner)</label>
-      <input type="text" id="code" name="code" pattern="\d{6}" maxlength="6" required>
-      <div class="error" id="codeError">Please enter a valid 6-digit code.</div>
-
       <button type="submit">Sign Up</button>
     </form>
 
     <div class="back-link">
-      <a href="Login.html">Already have an account? Log in</a>
+      <a href="login.html">Already have an account? Log in</a>
     </div>
   </div>
 
   <script src="script.js"></script>
   <script>
-    function validateCode() {
-      const codeInput = document.getElementById('code');
-      const error = document.getElementById('codeError');
-      const code = codeInput.value.trim();
+    // Handle form submission
+    document.getElementById('signupForm').addEventListener('submit', async (event) => {
+      event.preventDefault(); // Prevent the form from submitting the traditional way
 
-      if (!/^\d{6}$/.test(code)) {
-        error.style.display = 'block';
-        return false;
+      const formData = new FormData(event.target);
+      const userData = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        username: formData.get('username'),
+        password: formData.get('password')
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/api/tutors', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert('Account created successfully!');
+          window.location.href = 'Login.html'; // Redirect to login page after successful signup
+        } else {
+          alert(result.message || 'Error creating account');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to connect to server');
       }
-
-      error.style.display = 'none';
-      return true;
-    }
+    });
   </script>
 
 </body>

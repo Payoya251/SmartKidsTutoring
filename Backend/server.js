@@ -2,16 +2,17 @@ require('dotenv').config(); // Load environment variables
 const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
-const cors = require('cors');
+const cors = require('cors'); // ✅ Only once!
+
 
 const app = express();
-const port = process.env.PORT || 3000; // Use a port, process.env.PORT is for Render
+const port = process.env.PORT || 3000;
 
-app.use(cors()); // Allow cross-origin requests
-app.use(bodyParser.json()); // Parse JSON bodies
+app.use(cors()); // ✅ Only once!
+app.use(bodyParser.json());
 
 // MongoDB Connection
-const uri = process.env.MONGODB_URI; // From .env file
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
 async function connectDB() {
@@ -20,14 +21,12 @@ async function connectDB() {
     console.log('Connected to MongoDB!');
   } catch (err) {
     console.error('Failed to connect:', err);
-    process.exit(1); // Exit if connection fails
+    process.exit(1);
   }
 }
 connectDB();
 
-const cors = require('cors');
-app.use(cors({origin: 'http://localhost:3000'}));
-
+// MongoDB connection check middleware
 app.use(async (req, res, next) => {
   try {
     await client.db(process.env.DB_NAME).command({ ping: 1 });
@@ -39,35 +38,8 @@ app.use(async (req, res, next) => {
   }
 });
 
-
-// 3. Handle the POST request from the form
+// POST for tutor applications
 app.post('/api/tutors', async (req, res) => {
-  const tutorData = req.body; // Data from the form
-
-  try {
-    const db = client.db(process.env.DB_NAME);  //  database name
-    const collection = db.collection('tutors'); //  collection name
-
-    const result = await collection.insertOne(tutorData);
-
-    res.status(201).json({ // 201 Created
-      message: 'Application submitted successfully!',
-      insertedId: result.insertedId,
-    });
-  } catch (err) {
-    console.error('MongoDB Error:', err);
-    res.status(500).json({ message: 'Failed to save application.' });
-  }
-});
-
-// Start the server
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on port ${port}`);
-});
-
-//newcode to see if the data arrives ti backend
-app.post('http://localhost:5000/api/tutors', async (req, res) => {
-  console.log('Tutor Data Received:', req.body); // Debugging
   const tutorData = req.body;
 
   try {
@@ -84,4 +56,30 @@ app.post('http://localhost:5000/api/tutors', async (req, res) => {
     console.error('MongoDB Error:', err);
     res.status(500).json({ message: 'Failed to save application.' });
   }
+});
+
+// POST for the other form
+app.post('/api/other-form', async (req, res) => {
+  console.log('Other Form Data Received:', req.body);
+  const formData = req.body;
+
+  try {
+    const db = client.db(process.env.DB_NAME);
+    const collection = db.collection('otherCollection');
+
+    const result = await collection.insertOne(formData);
+
+    res.status(201).json({
+      message: 'Other form data received and saved!',
+      insertedId: result.insertedId,
+    });
+  } catch (err) {
+    console.error('MongoDB Error:', err);
+    res.status(500).json({ message: 'Failed to save other form data.' });
+  }
+});
+
+// Start server
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running on port ${port}`);
 });

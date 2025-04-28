@@ -1,9 +1,9 @@
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
-const bcrypt = require('bcryptjs'); // Don't forget to require bcrypt
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,10 +13,12 @@ app.use(bodyParser.json());
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
+let db; // global db instance
 
 async function connectDB() {
     try {
         await client.connect();
+        db = client.db(process.env.DB_NAME);
         console.log('Connected to MongoDB!');
     } catch (err) {
         console.error('Failed to connect to MongoDB:', err);
@@ -29,9 +31,8 @@ app.post('/api/tutors', async (req, res) => {
     const tutorData = req.body;
 
     try {
-        const db = client.db(process.env.DB_NAME);
-        const tutorsCollection = db.collection('tutors'); // Collection name for tutor applications
-
+        if (!db) return res.status(500).json({ message: 'Database not connected.' });
+        const tutorsCollection = db.collection('tutors');
         const result = await tutorsCollection.insertOne(tutorData);
 
         res.status(201).json({
@@ -47,32 +48,31 @@ app.post('/api/tutors', async (req, res) => {
 app.post('/api/signup', async (req, res) => {
     const { name, email, username, password, code } = req.body;
 
-    // --- Code Verification Logic (Implement your actual logic here) ---
-    // For demonstration, I'm using a simple check. Replace this!
+    if (!email || !password || !username || !name || !code) {
+        return res.status(400).json({ message: 'Missing required fields.' });
+    }
+
     if (code !== 'SHARP2025') {
         return res.status(400).json({ message: 'Invalid signup code.' });
     }
 
     try {
-        const db = client.db(process.env.DB_NAME); // Connect to your main database ("USERS" as per .env)
-        const usersCollection = db.collection('sign_up_data'); // Use the "sign_up_data" collection
+        if (!db) return res.status(500).json({ message: 'Database not connected.' });
+        const usersCollection = db.collection('sign_up_data');
 
-        // Check if the username or email already exists
         const existingUser = await usersCollection.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
             return res.status(409).json({ message: 'Username or email already exists.' });
         }
 
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Save the new user to the "sign_up_data" collection
         const result = await usersCollection.insertOne({
             name,
             email,
             username,
             password: hashedPassword,
-            signupCode: code, // You might want to store the code for auditing or other purposes
+            signupCode: code,
             registrationDate: new Date()
         });
 

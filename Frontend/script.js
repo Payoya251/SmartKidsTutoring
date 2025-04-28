@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const toggleButton = document.getElementById('toggle-btn'); // Changed variable name to toggleButton
+  const toggleButton = document.getElementById('toggle-btn');
   const sidebar = document.getElementById('sidebar');
 
   if (toggleButton && sidebar) {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Dark mode support (if used)
+  // Dark mode support
   const prefersDark = localStorage.getItem("darkMode") === "enabled";
   if (prefersDark) {
     document.body.classList.add("dark-mode");
@@ -51,15 +51,55 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Fake form submission handler
+  // Handle form submissions for OTHER forms, not signup
   const forms = document.querySelectorAll("form");
   forms.forEach((form) => {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      alert("Form submitted!");
-      form.reset();
-      form.classList.add("submitted");
-      setTimeout(() => form.classList.remove("submitted"), 1000);
-    });
+    if (form.id !== "signupForm") { // ✅ Exclude signupForm
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        alert("Form submitted!");
+        form.reset();
+        form.classList.add("submitted");
+        setTimeout(() => form.classList.remove("submitted"), 1000);
+      });
+    }
   });
+
+  // Real signup form handler
+  const signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (event) => {
+      event.preventDefault(); // Stop traditional submit
+
+      const formData = new FormData(signupForm);
+      const userData = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        username: formData.get('username'),
+        password: formData.get('password')
+      };
+
+      try {
+        const response = await fetch('/api/signup', { // Use relative URL unless you are deployed
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert('Account created successfully!');
+          window.location.href = 'Login.html'; // Redirect after signup
+        } else {
+          alert(result.message || 'Error creating account');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to connect to server');
+      }
+    });
+  }
 });

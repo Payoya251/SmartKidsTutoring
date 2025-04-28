@@ -123,42 +123,7 @@
   </div>
 
   <script src="script.js"></script>
-  <script>
-    // Handle form submission
-    document.getElementById('signupForm').addEventListener('submit', async (event) => {
-      event.preventDefault(); // Prevent the form from submitting the traditional way
 
-      const formData = new FormData(event.target);
-      const userData = {
-        name: formData.get('name'),
-        email: formData.get('email'),
-        username: formData.get('username'),
-        password: formData.get('password')
-      };
-
-      try {
-        const response = await fetch('http://localhost:3000/api/signup', { // CORRECTED URL HERE
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(userData)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          alert('Account created successfully!');
-          window.location.href = 'Login.html'; // Redirect to login page after successful signup
-        } else {
-          alert(result.message || 'Error creating account');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to connect to server');
-      }
-    });
-  </script>
 
 </body>
 </html>

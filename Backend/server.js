@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
-const bcrypt = require('bcrypt'); // Don't forget to require bcrypt
+const bcrypt = require('bcryptjs'); // Don't forget to require bcrypt
 
 const app = express();
 const port = process.env.PORT || 3000;

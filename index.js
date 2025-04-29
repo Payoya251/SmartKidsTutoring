@@ -141,6 +141,40 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
+// Login route
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Please provide both email and password.' });
+    }
+
+    try {
+        const user = await db.collection("users").findOne({ email });
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid email or password.' }); // Unauthorized
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (isPasswordValid) {
+            // Passwords match! Send back username and redirect
+            res.status(200).json({
+                message: 'Login successful!',
+                redirect: 'student_dashboard.html', // need validation to now if redirecting to user ot tutor dashboard
+                username: user.username // Include the username in the response
+            });
+        } else {
+            res.status(401).json({ message: 'Invalid email or password.' }); // Unauthorized
+        }
+    } catch (err) {
+        console.error("Error during login:", err);
+        res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+});
+
+
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });

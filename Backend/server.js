@@ -13,8 +13,9 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Database setup
-const uri = process.env.MONGODB_URI;
-const dbName = process.env.DB_NAME;
+const uri = "mongodb+srv://anthonyventura2324:36kgQwCf6zqWEiDa@smartkidstutoring.jahng0c.mongodb.net/SmartKidsTutoring?retryWrites=true&w=majority";
+const dbName = "SmartKidsTutoring";
+
 const client = new MongoClient(uri);
 let db;
 

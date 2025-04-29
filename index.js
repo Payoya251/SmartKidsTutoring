@@ -66,40 +66,34 @@ app.post('/api/tutors', async (req, res) => {
   }
 });
 
-// Fixed Signup route
+// Signup route - now matches tutors endpoint structure exactly
 app.post('/api/signup', async (req, res) => {
   const { name, email, username, password } = req.body;
 
-  // Basic validation
   if (!name || !email || !username || !password) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
   try {
-    // Check if user exists
-    const existingUser = await db.collection("users").findOne({ 
-      $or: [{ username }, { email }] 
-    });
-    
-    if (existingUser) {
-      return res.status(409).json({ message: 'Username or email already exists.' });
-    }
-
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
+    
     await db.collection("users").insertOne({
-      name, email, username, 
+      name, email, username,
       password: hashedPassword,
       createdAt: new Date()
     });
-
-    res.status(201).json({ message: 'Account created successfully!' });
     
+    res.status(200).json({ message: 'Account created successfully!' });
   } catch (err) {
-    console.error("Signup error:", err);
-    res.status(500).json({ message: 'Failed to create account.' });
+    console.error("Error creating account:", err);
+    
+    // Special handling for duplicate users
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Username or email already exists.' });
+    }
+    
+    res.status(500).json({ message: 'Server error. Try again later.' });
   }
 });
 

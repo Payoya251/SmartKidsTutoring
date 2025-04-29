@@ -62,7 +62,7 @@ app.get('/', (req, res) => {
 });
 
 // Tutor application route
-app.post('/api/register/tutor', async (req, res) => { // Changed to /api/register/tutor
+app.post('/api/tutor', async (req, res) => { // Changed to /api/register/tutor
   const { name, email, username, password, subject, availability, message } = req.body;
 
   if (!name || !email || !username || !password) {

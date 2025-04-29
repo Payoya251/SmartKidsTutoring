@@ -143,6 +143,7 @@
 
                 if (response.ok) {
                     alert(result.message); // "Login successful!"
+                    localStorage.setItem('username', result.username); // Store the username
                     window.location.href = result.redirect; // Redirect to student_dashboard.html
                 } else {
                     errorMessageDiv.textContent = result.message;

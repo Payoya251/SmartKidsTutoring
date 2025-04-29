@@ -140,7 +140,7 @@ app.post('/api/login', async (req, res) => {
             // Passwords match! Send back username and redirect
             res.status(200).json({
                 message: 'Login successful!',
-                redirect: 'student_dashboard.html',
+                redirect: 'student_dashboard.html', // need validation to now if redirecting to user ot tutor dashboard
                 username: user.username // Include the username in the response
             });
         } else {

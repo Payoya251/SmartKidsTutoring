@@ -63,11 +63,13 @@ app.get('/', (req, res) => {
 
 // Tutor application route
 app.post('/api/tutors', async (req, res) => {
-  const { name, email, subject, availability, message } = req.body;
+  const { name, username, email, password, subject, availability, message } = req.body;
 
   if (!name || !email) {
     return res.status(400).json({ message: 'Name and email are required.' });
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const result = await db.collection("tutors").insertOne({

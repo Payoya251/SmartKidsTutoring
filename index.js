@@ -137,8 +137,12 @@ app.post('/api/login', async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (isPasswordValid) {
-            // Passwords match! You might want to generate a session token here
-            res.status(200).json({ message: 'Login successful!', redirect: 'student_dashboard.html' });
+            // Passwords match! Send back username and redirect
+            res.status(200).json({
+                message: 'Login successful!',
+                redirect: 'student_dashboard.html',
+                username: user.username // Include the username in the response
+            });
         } else {
             res.status(401).json({ message: 'Invalid email or password.' }); // Unauthorized
         }

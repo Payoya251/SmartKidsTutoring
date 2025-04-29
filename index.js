@@ -10,7 +10,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // MongoDB Configuration
-const uri = process.env.MONGODB_URI; // Ensure this is in your .env file
+const uri = "mongodb+srv://anthonyventura2324:36kgQwCf6zqWEiDa@smartkidstutoring.jahng0c.mongodb.net/SmartKidsTutoring?retryWrites=true&w=majority";
 const dbName = "SmartKidsTutoring";
 
 // Middleware
@@ -61,79 +61,31 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Frontend', 'Homepage.html'));
 });
 
-// Tutor signup route (for creating tutor accounts)
-app.post('/api/register/tutor', async (req, res) => {
-    const { name, email, username, password, subject, availability, message } = req.body;
+// Tutor application route
+app.post('/api/tutors', async (req, res) => {
+    const { name, email, subject, availability, message } = req.body;
 
-    if (!name || !email || !username || !password) {
-        return res.status(400).json({ message: 'All fields are required for tutor registration.' });
+    if (!name || !email) {
+        return res.status(400).json({ message: 'Name and email are required.' });
     }
 
     try {
-        const existingTutor = await db.collection("tutors").findOne({ username });
-        if (existingTutor) {
-            return res.status(409).json({ message: 'Username already exists.' });
-        }
-
-        const existingEmail = await db.collection("tutors").findOne({ email });
-        if (existingEmail) {
-            return res.status(409).json({ message: 'Email already exists.' });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        await db.collection("tutors").insertOne({
+        const result = await db.collection("tutors").insertOne({
             name,
             email,
-            username,
-            password: hashedPassword,
             subject,
             availability,
             message,
-            registeredAt: new Date()
+            submittedAt: new Date(),
         });
-
-        res.status(201).json({ message: 'Tutor account created successfully!' });
+        res.status(200).json({ message: 'Application submitted successfully!' });
     } catch (err) {
-        console.error("Error creating tutor account:", err);
-        res.status(500).json({ message: 'Server error during tutor registration. Try again later.' });
+        console.error("Error saving tutor application:", err);
+        res.status(500).json({ message: 'Server error. Try again later.' });
     }
 });
 
-// Tutor login route
-app.post('/api/login/tutor', async (req, res) => {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ message: 'Please provide both username and password.' });
-    }
-
-    try {
-        const tutor = await db.collection("tutors").findOne({ username });
-
-        if (!tutor) {
-            return res.status(401).json({ message: 'Invalid username or password.' }); // Unauthorized
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, tutor.password);
-
-        if (isPasswordValid) {
-            // Passwords match! Send back username and redirect to tutor dashboard
-            res.status(200).json({
-                message: 'Tutor login successful!',
-                redirect: 'tutor_dashboard.html',
-                username: tutor.username // Include the username
-            });
-        } else {
-            res.status(401).json({ message: 'Invalid username or password.' }); // Unauthorized
-        }
-    } catch (err) {
-        console.error("Error during tutor login:", err);
-        res.status(500).json({ message: 'Server error during tutor login. Please try again later.' });
-    }
-});
-
-// User signup route (for students/parents)
+// Signup route
 app.post('/api/signup', async (req, res) => {
     const { name, email, username, password } = req.body;
 
@@ -167,7 +119,7 @@ app.post('/api/signup', async (req, res) => {
     }
 });
 
-// User login route (for students/parents)
+// Login route
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -185,11 +137,11 @@ app.post('/api/login', async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (isPasswordValid) {
-            // Passwords match! Send back username and redirect to student dashboard
+            // Passwords match! Send back username and redirect
             res.status(200).json({
                 message: 'Login successful!',
-                redirect: 'student_dashboard.html',
-                username: user.username // Include the username
+                redirect: 'student_dashboard.html', // need validation to now if redirecting to user ot tutor dashboard
+                username: user.username // Include the username in the response
             });
         } else {
             res.status(401).json({ message: 'Invalid email or password.' }); // Unauthorized
@@ -200,6 +152,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+
 // Health check
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK' });
@@ -209,3 +162,4 @@ app.get('/health', (req, res) => {
 app.listen(port, '0.0.0.0', () => {
     console.log(`🚀 Server running on http://localhost:${port}`);
 });
+

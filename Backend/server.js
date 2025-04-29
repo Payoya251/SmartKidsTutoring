@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config(); // Load environment variables
 const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
@@ -8,15 +8,17 @@ const bcrypt = require('bcryptjs');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
+// Database setup
 const uri = process.env.MONGODB_URI;
-const dbName = process.env.DB_NAME || "SmartKidsTutoring"; // fallback if DB_NAME is missing
+const dbName = process.env.DB_NAME;
 const client = new MongoClient(uri);
+let db;
 
-let db; // Global database instance
-
+// Connect to MongoDB
 async function connectDB() {
     try {
         await client.connect();
@@ -29,14 +31,15 @@ async function connectDB() {
 }
 connectDB();
 
-// Handle tutor applications
+// Routes
+
+// Tutor application route
 app.post('/api/tutors', async (req, res) => {
     const tutorData = req.body;
 
     try {
         if (!db) return res.status(500).json({ message: 'Database not connected.' });
         const tutorsCollection = db.collection('tutors');
-
         const result = await tutorsCollection.insertOne(tutorData);
 
         res.status(201).json({
@@ -44,12 +47,12 @@ app.post('/api/tutors', async (req, res) => {
             insertedId: result.insertedId,
         });
     } catch (error) {
-        console.error('❌ MongoDB Error saving tutor application:', error);
+        console.error('MongoDB Error saving tutor application:', error);
         res.status(500).json({ message: 'Failed to save tutor application.' });
     }
 });
 
-// Handle user signups
+// User signup route
 app.post('/api/signup', async (req, res) => {
     const { name, email, username, password, code } = req.body;
 
@@ -84,12 +87,12 @@ app.post('/api/signup', async (req, res) => {
         res.status(201).json({ message: 'Account created successfully!', userId: result.insertedId });
 
     } catch (error) {
-        console.error('❌ Signup error:', error);
+        console.error('Signup error:', error);
         res.status(500).json({ message: 'Failed to create account.' });
     }
 });
 
-// Start the server
+// Start server
 app.listen(port, '0.0.0.0', () => {
-    console.log(`🚀 Server is running on port ${port}`);
+    console.log(`🚀 Server is running on http://localhost:${port}`);
 });

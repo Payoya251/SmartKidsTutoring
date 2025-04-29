@@ -62,27 +62,42 @@ app.get('/', (req, res) => {
 });
 
 // Tutor application route
-app.post('/api/tutors', async (req, res) => {
-  const { name, username, email, password, subject, availability, message } = req.body;
+app.post('/api/register/tutor', async (req, res) => { // Changed to /api/register/tutor
+  const { name, email, username, password, subject, availability, message } = req.body;
 
-  if (!name || !email) {
-    return res.status(400).json({ message: 'Name and email are required.' });
+  if (!name || !email || !username || !password) {
+    return res.status(400).json({ message: 'All fields are required.' }); // Improved message
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
   try {
+    // Check if username already exists
+    const existingTutor = await db.collection("tutors").findOne({ username });
+    if (existingTutor) {
+      return res.status(409).json({ message: 'Username already exists.' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const result = await db.collection("tutors").insertOne({
       name,
-      username,
       email,
-      password: hashedPassword,
+      username,
+      password: hashedPassword, // Store the hashed password
       subject,
       availability,
       message,
-      submittedAt: new Date(),
+      registeredAt: new Date(),
     });
-    res.status(200).json({ message: 'Application submitted successfully!' });
+
+    if(result.acknowledged){
+         res.status(201).json({ message: 'Tutor account created successfully!' });
+    }
+    else{
+      res.status(500).json({ message: 'Failed to create tutor account' });
+    }
+
+
   } catch (err) {
     console.error("Error saving tutor application:", err);
     res.status(500).json({ message: 'Server error. Try again later.' });

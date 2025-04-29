@@ -74,7 +74,7 @@ app.post('/api/tutors', async (req, res) => {
       name,
       username,
       email,
-      password,
+      password: hashedPassword,
       subject,
       availability,
       message,

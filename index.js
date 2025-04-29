@@ -72,7 +72,9 @@ app.post('/api/tutors', async (req, res) => {
   try {
     const result = await db.collection("tutors").insertOne({
       name,
+      username,
       email,
+      password,
       subject,
       availability,
       message,

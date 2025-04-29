@@ -1,99 +1,109 @@
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
-const { MongoClient } = require('mongodb');
-const cors = require('cors');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const bcrypt = require('bcryptjs');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-
-// Database setup
+// MongoDB Configuration
 const uri = "mongodb+srv://anthonyventura2324:36kgQwCf6zqWEiDa@smartkidstutoring.jahng0c.mongodb.net/SmartKidsTutoring?retryWrites=true&w=majority";
 const dbName = "SmartKidsTutoring";
 
-const client = new MongoClient(uri);
-let db;
+// Middleware
+app.use(cors());
+app.use(express.static(path.join(__dirname, 'Frontend')));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// Connect to MongoDB
+// Mongo Client
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+// Database connection
+let db;
 async function connectDB() {
-    try {
-        await client.connect();
-        db = client.db(dbName);
-        console.log('✅ Connected to MongoDB!');
-    } catch (err) {
-        console.error('❌ Failed to connect to MongoDB:', err);
-        process.exit(1);
-    }
+  try {
+    await client.connect();
+    db = client.db(dbName);
+    console.log("✅ Connected to MongoDB!");
+  } catch (err) {
+    console.error("❌ MongoDB connection failed:", err);
+  }
 }
 connectDB();
 
 // Routes
-
-// Tutor application route
-app.post('/api/tutors', async (req, res) => {
-    const tutorData = req.body;
-
-    try {
-        if (!db) return res.status(500).json({ message: 'Database not connected.' });
-        const tutorsCollection = db.collection('tutors');
-        const result = await tutorsCollection.insertOne(tutorData);
-
-        res.status(201).json({
-            message: 'Tutor application submitted successfully!',
-            insertedId: result.insertedId,
-        });
-    } catch (error) {
-        console.error('MongoDB Error saving tutor application:', error);
-        res.status(500).json({ message: 'Failed to save tutor application.' });
-    }
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Frontend', 'Homepage.html'));
 });
 
-// User signup route
+// Tutor application route (working)
+app.post('/api/tutors', async (req, res) => {
+  const { name, email, subject, availability, message } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({ message: 'Name and email are required.' });
+  }
+
+  try {
+    const result = await db.collection("tutors").insertOne({
+      name, email, subject, availability, message,
+      submittedAt: new Date()
+    });
+    res.status(200).json({ message: 'Application submitted successfully!' });
+  } catch (err) {
+    console.error("Error saving tutor application:", err);
+    res.status(500).json({ message: 'Server error. Try again later.' });
+  }
+});
+
+// Fixed Signup route
 app.post('/api/signup', async (req, res) => {
-    const { name, email, username, password, code } = req.body;
+  const { name, email, username, password } = req.body;
 
-    if (!email || !password || !username || !name || !code) {
-        return res.status(400).json({ message: 'Missing required fields.' });
+  // Basic validation
+  if (!name || !email || !username || !password) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  try {
+    // Check if user exists
+    const existingUser = await db.collection("users").findOne({ 
+      $or: [{ username }, { email }] 
+    });
+    
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username or email already exists.' });
     }
 
-    if (code !== 'SHARP2025') {
-        return res.status(400).json({ message: 'Invalid signup code.' });
-    }
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    try {
-        if (!db) return res.status(500).json({ message: 'Database not connected.' });
-        const usersCollection = db.collection('sign_up_data');
+    // Create user
+    await db.collection("users").insertOne({
+      name, email, username, 
+      password: hashedPassword,
+      createdAt: new Date()
+    });
 
-        const existingUser = await usersCollection.findOne({ $or: [{ username }, { email }] });
-        if (existingUser) {
-            return res.status(409).json({ message: 'Username or email already exists.' });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const result = await usersCollection.insertOne({
-            name,
-            email,
-            username,
-            password: hashedPassword,
-            signupCode: code,
-            registrationDate: new Date()
-        });
-
-        res.status(201).json({ message: 'Account created successfully!', userId: result.insertedId });
-
-    } catch (error) {
-        console.error('Signup error:', error);
-        res.status(500).json({ message: 'Failed to create account.' });
-    }
+    res.status(201).json({ message: 'Account created successfully!' });
+    
+  } catch (err) {
+    console.error("Signup error:", err);
+    res.status(500).json({ message: 'Failed to create account.' });
+  }
 });
 
 // Start server
 app.listen(port, '0.0.0.0', () => {
-    console.log(`🚀 Server is running on http://localhost:${port}`);
+  console.log(`🚀 Server is running on http://localhost:${port}`);
 });

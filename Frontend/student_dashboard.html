@@ -4,116 +4,433 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Student Dashboard | Sharp Kids Tutoring</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Base Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      min-height: 100vh;
+      background-color: #f5f7fa;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 0;
+      background-color: #2c3e50;
+      color: white;
+      padding-top: 60px;
+      transition: all 0.3s;
+      position: fixed;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .sidebar.active {
+      width: 250px;
+      padding: 20px;
+    }
+
+    .sidebar-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 2;
+      color: #2c3e50;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+      display: none;
+    }
+
+    .sidebar.active .logo {
+      display: block;
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    nav ul li {
+      margin-bottom: 15px;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      display: block;
+      padding: 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    nav ul li a:hover {
+      background-color: #34495e;
+    }
+
+    /* Content Styles */
+    .content {
+      flex: 1;
+      padding: 30px;
+      margin-left: 0;
+      transition: margin-left 0.3s;
+    }
+
+    .content.shifted {
+      margin-left: 250px;
+    }
+
+    .page-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .page-logo img {
+      max-width: 150px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    /* Card Styles */
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: #2c3e50;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    /* Progress Bar Styles */
+    .progress-bar {
+      background-color: #ecf0f1;
+      border-radius: 20px;
+      height: 20px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    .progress {
+      background-color: #3498db;
+      height: 100%;
+      border-radius: 20px;
+    }
+
+    /* Button Styles */
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    /* Calendar Styles */
+    .calendar-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: #3498db;
+      color: white;
+    }
+
+    .calendar-header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2em;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin: 0;
+    }
+
+    .calendar-header button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: #f1f1f1;
+      font-weight: bold;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .calendar-weekdays div {
+      padding: 5px;
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      padding: 10px;
+    }
+
+    .calendar-days div {
+      padding: 10px;
+      text-align: center;
+      border-radius: 5px;
+      cursor: pointer;
+      min-height: 30px;
+    }
+
+    .calendar-days div:hover {
+      background: #e0e0e0;
+    }
+
+    .calendar-days .prev-month,
+    .calendar-days .next-month {
+      color: #aaa;
+    }
+
+    .calendar-days .today {
+      background: #3498db;
+      color: white;
+      font-weight: bold;
+    }
+
+    .calendar-days .has-session {
+      background: #e8f4fc;
+      position: relative;
+    }
+
+    .calendar-days .has-session::after {
+      content: '';
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      background: #3498db;
+      border-radius: 50%;
+    }
+  </style>
 </head>
 <body>
-  <div class="sidebar active" id="sidebar">
+  <div class="sidebar-toggle">☰</div>
+  
+  <div class="sidebar" id="sidebar">
     <div class="logo"><img src="logo.png" alt="Logo" /></div>
-    <button class="toggle-btn" id="toggleBtn">
-      <i class="fas fa-bars"></i>
-    </button>
     <nav>
       <ul>
-        <li><a href="Homepage.html"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="ContactUs.html"><i class="fas fa-envelope"></i> Contact</a></li>
-        <li><a href="Login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        <li><a href="Homepage.html">Home</a></li>
+        <li><a href="ContactUs.html">Contact</a></li>
+        <li><a href="Login.html">Logout</a></li>
       </ul>
     </nav>
   </div>
 
-  <div class="content">
-    <header class="dashboard-header">
-      <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
-      <div class="user-info">
-        <h1>Welcome, Sarah Johnson!</h1>
-        <p>Student ID: SKT20458</p>
-      </div>
-    </header>
+  <div class="content" id="content">
+    <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
+    <h1>Welcome, Sarah Johnson!</h1>
+    <p>Student ID: SKT20458</p>
 
-    <div class="dashboard-grid">
-      <div class="card upcoming-sessions">
-        <h3><i class="fas fa-calendar-alt"></i> Upcoming Sessions</h3>
-        <div class="session-item">
-          <span class="subject-badge math">Math</span>
-          <p>Apr 28 · 4:00 PM</p>
-          <a href="#" class="join-btn">Join Call <i class="fas fa-video"></i></a>
-        </div>
-        <div class="session-item">
-          <span class="subject-badge reading">Reading</span>
-          <p>May 1 · 5:00 PM</p>
-          <a href="#" class="join-btn">Join Call <i class="fas fa-video"></i></a>
-        </div>
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <button id="prev-month">&lt;</button>
+        <h2 id="month-year">Month Year</h2>
+        <button id="next-month">&gt;</button>
       </div>
+      <div class="calendar-weekdays">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+      </div>
+      <div class="calendar-days" id="calendar-days">
+        <!-- Days will be populated by JavaScript -->
+      </div>
+    </div>
 
-      <div class="card calendar-card">
-        <h3><i class="far fa-calendar"></i> Calendar</h3>
-        <div class="calendar-header">
-          <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
-          <h4 id="currentMonth">April 2023</h4>
-          <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <div class="calendar-weekdays">
-          <div>Sun</div>
-          <div>Mon</div>
-          <div>Tue</div>
-          <div>Wed</div>
-          <div>Thu</div>
-          <div>Fri</div>
-          <div>Sat</div>
-        </div>
-        <div class="calendar-days" id="calendarDays"></div>
-        <div class="calendar-events">
-          <div class="event-indicator math" data-date="2023-04-28">Math Session 4PM</div>
-          <div class="event-indicator reading" data-date="2023-05-01">Reading Session 5PM</div>
-        </div>
-      </div>
+    <div class="card">
+      <h3>Upcoming Sessions</h3>
+      <p><strong>Math:</strong> Apr 28 · 4:00 PM <a href="#">Join Call</a></p>
+      <p><strong>Reading:</strong> May 1 · 5:00 PM <a href="#">Join Call</a></p>
+    </div>
 
-      <div class="card homework-card">
-        <h3><i class="fas fa-book"></i> Submit Homework</h3>
-        <div class="file-upload">
-          <label for="homeworkFile" class="upload-btn">
-            <i class="fas fa-cloud-upload-alt"></i> Choose File
-          </label>
-          <input type="file" id="homeworkFile">
-          <span id="fileName">No file chosen</span>
-        </div>
-        <button class="submit-btn"><i class="fas fa-paper-plane"></i> Submit</button>
-      </div>
+    <div class="card">
+      <h3>Submit Homework</h3>
+      <input type="file">
+      <button>Submit</button>
+    </div>
 
-      <div class="card payment-card">
-        <h3><i class="fas fa-credit-card"></i> Payment Status</h3>
-        <div class="payment-status">
-          <i class="fas fa-check-circle paid-icon"></i>
-          <p>Status: <span class="paid-text">Paid through April</span></p>
-        </div>
-        <button class="payment-btn"><i class="fas fa-dollar-sign"></i> Make Payment</button>
-      </div>
+    <div class="card">
+      <h3>Payment Status</h3>
+      <p>Status: Paid through April</p>
+      <button>Make Payment</button>
+    </div>
 
-      <div class="card progress-card">
-        <h3><i class="fas fa-chart-line"></i> Your Progress</h3>
-        <div class="progress-item">
-          <div class="progress-info">
-            <span>Math:</span>
-            <span>5/8</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress math-progress" style="width: 62%"></div>
-          </div>
-        </div>
-        <div class="progress-item">
-          <div class="progress-info">
-            <span>Reading:</span>
-            <span>3/5</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress reading-progress" style="width: 60%"></div>
-          </div>
-        </div>
-      </div>
+    <div class="card">
+      <h3>Your Progress</h3>
+      <p>Math: 5/8</p>
+      <div class="progress-bar"><div class="progress" style="width: 62%"></div></div>
+      <p>Reading: 3/5</p>
+      <div class="progress-bar"><div class="progress" style="width: 60%"></div></div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // Sidebar Toggle Functionality
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('content').classList.toggle('shifted');
+    });
+
+    // Calendar Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const monthYearElement = document.getElementById('month-year');
+      const calendarDaysElement = document.getElementById('calendar-days');
+      const prevMonthButton = document.getElementById('prev-month');
+      const nextMonthButton = document.getElementById('next-month');
+      
+      let currentDate = new Date();
+      
+      // Student's scheduled sessions (date format: "MM/DD/YYYY")
+      const sessions = {
+        "04/28/2024": "Math: 4:00 PM",
+        "05/01/2024": "Reading: 5:00 PM",
+        "05/15/2024": "Math: 4:00 PM",
+        "05/22/2024": "Reading: 5:00 PM"
+      };
+      
+      // Render the calendar
+      function renderCalendar() {
+        // Auto-update to current month if needed
+        const today = new Date();
+        if (currentDate.getMonth() !== today.getMonth() || 
+            currentDate.getFullYear() !== today.getFullYear()) {
+          currentDate = new Date();
+        }
+
+        // Get the current month and year
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        
+        // Set the month and year in the header
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+        monthYearElement.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        // Get the first day of the month and the total days in the month
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        // Get the days from the previous month to display
+        const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+        
+        // Clear the calendar
+        calendarDaysElement.innerHTML = '';
+        
+        // Add days from previous month
+        for (let i = firstDay - 1; i >= 0; i--) {
+          const dayElement = document.createElement('div');
+          dayElement.classList.add('prev-month');
+          dayElement.textContent = daysInPrevMonth - i;
+          calendarDaysElement.appendChild(dayElement);
+        }
+        
+        // Add days from current month
+        for (let i = 1; i <= daysInMonth; i++) {
+          const dayElement = document.createElement('div');
+          dayElement.textContent = i;
+          
+          // Format date for session checking
+          const formattedDate = `${currentMonth + 1}/${i}/${currentYear}`;
+          
+          // Highlight today's date
+          if (i === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+            dayElement.classList.add('today');
+          }
+          
+          // Mark days with sessions
+          if (sessions[formattedDate]) {
+            dayElement.classList.add('has-session');
+            dayElement.title = sessions[formattedDate]; // Show session info on hover
+          }
+          
+          calendarDaysElement.appendChild(dayElement);
+        }
+        
+        // Calculate how many days from next month to display
+        const totalCells = firstDay + daysInMonth;
+        const remainingCells = totalCells > 35 ? 42 - totalCells : 35 - totalCells;
+        
+        // Add days from next month
+        for (let i = 1; i <= remainingCells; i++) {
+          const dayElement = document.createElement('div');
+          dayElement.classList.add('next-month');
+          dayElement.textContent = i;
+          
+          // Format date for session checking (next month)
+          const nextMonth = currentMonth + 1 > 11 ? 0 : currentMonth + 1;
+          const nextYear = currentMonth + 1 > 11 ? currentYear + 1 : currentYear;
+          const formattedDate = `${nextMonth + 1}/${i}/${nextYear}`;
+          
+          // Mark days with sessions in next month
+          if (sessions[formattedDate]) {
+            dayElement.classList.add('has-session');
+            dayElement.title = sessions[formattedDate];
+          }
+          
+          calendarDaysElement.appendChild(dayElement);
+        }
+      }
+      
+      // Event listeners for month navigation
+      prevMonthButton.addEventListener('click', function() {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+      });
+      
+      nextMonthButton.addEventListener('click', function() {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+      });
+      
+      // Initial render
+      renderCalendar();
+    });
+  </script>
 </body>
 </html>

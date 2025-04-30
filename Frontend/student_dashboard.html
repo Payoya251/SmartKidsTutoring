@@ -25,12 +25,12 @@
       height: 100vh;
       overflow-y: auto;
       z-index: 1;
-      transform: translateX(-250px);
-      transition: transform 0.3s ease;
+      left: -250px; /* Completely hidden by default */
+      transition: left 0.3s ease;
     }
 
     .sidebar.active {
-      transform: translateX(0);
+      left: 0; /* Slide in when active */
     }
 
     .sidebar-toggle {
@@ -87,11 +87,11 @@
       flex: 1;
       padding: 30px;
       transition: margin-left 0.3s;
+      width: 100%;
     }
 
     .content.shifted {
       margin-left: 250px;
-      padding-left: 20px;
     }
 
     .page-logo {
@@ -282,7 +282,7 @@
     <div class="calendar-container">
       <div class="calendar-header">
         <button id="prev-month">&lt;</button>
-        <h2 id="month-year">Month Year</h2>
+        <h2 id="month-year">April 2025</h2>
         <button id="next-month">&gt;</button>
       </div>
       <div class="calendar-weekdays">
@@ -340,14 +340,14 @@
       const prevMonthButton = document.getElementById('prev-month');
       const nextMonthButton = document.getElementById('next-month');
       
-      let currentDate = new Date();
+      let currentDate = new Date(2025, 3, 1); // Set to April 2025 for the screenshot
       
       // Student's scheduled sessions (date format: "MM/DD/YYYY")
       const sessions = {
-        "04/28/2024": "Math: 4:00 PM",
-        "05/01/2024": "Reading: 5:00 PM",
-        "05/15/2024": "Math: 4:00 PM",
-        "05/22/2024": "Reading: 5:00 PM"
+        "04/28/2025": "Math: 4:00 PM",
+        "05/01/2025": "Reading: 5:00 PM",
+        "05/15/2025": "Math: 4:00 PM",
+        "05/22/2025": "Reading: 5:00 PM"
       };
       
       // Render the calendar

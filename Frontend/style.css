@@ -153,102 +153,90 @@ img {
   margin-left: 250px;
 }
 
-/* CALENDAR STYLES */
-.calendar-container {
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  max-width: 800px;
-  margin: 30px auto;
-  overflow: hidden;
-}
-
-.calendar-header {
+/* CTA BUTTONS */
+.cta-buttons {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  background: #007b83;
-  color: white;
+  justify-content: center;
+  gap: 20px;
+  margin: 30px 0 50px;
+  flex-wrap: wrap;
 }
 
-.calendar-header button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.2em;
-  cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 5px;
-  margin: 0;
-}
-
-.calendar-header button:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.calendar-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  background: #f1f1f1;
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
   font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: inline-block;
   text-align: center;
-  padding: 10px 0;
-}
-
-.calendar-weekdays div {
-  padding: 5px;
-}
-
-.calendar-days {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  padding: 10px;
-}
-
-.calendar-days div {
-  padding: 10px;
-  text-align: center;
-  border-radius: 6px;
   cursor: pointer;
-  min-height: 40px;
+  border: none;
+}
+
+.btn.primary {
+  background-color: #007b83;
+  color: white;
+}
+
+.btn.primary:hover {
+  background-color: #005e61;
+  transform: translateY(-2px);
+}
+
+.btn.secondary {
+  background-color: #f2d060;
+  color: #000;
+}
+
+.btn.secondary:hover {
+  background-color: #e2bd48;
+  transform: translateY(-2px);
+}
+
+/* CENTERED TEXT */
+.centered-text {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 30px;
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.7;
+}
+
+/* FORMS */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="datetime-local"],
+input[type="tel"],
+textarea,
+select {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
   transition: all 0.2s ease;
 }
 
-.calendar-days div:hover {
-  background: #e0e0e0;
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #007b83;
+  box-shadow: 0 0 0 2px rgba(0,123,131,0.2);
 }
 
-.calendar-days .prev-month,
-.calendar-days .next-month {
-  color: #aaa;
+textarea {
+  resize: vertical;
+  min-height: 120px;
 }
 
-.calendar-days .today {
-  background: #007b83;
-  color: white;
-  font-weight: bold;
-}
-
-.calendar-days .has-session {
-  background: #e8f4fc;
-  position: relative;
-}
-
-.calendar-days .has-session::after {
-  content: '';
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  background: #007b83;
-  border-radius: 50%;
-}
-
-/* CARD STYLES */
+/* CARD STYLE BLOCK */
 .card {
   background: white;
   padding: 25px 30px;
@@ -263,42 +251,6 @@ img {
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-}
-
-/* PROGRESS BAR */
-.progress-bar {
-  background-color: #ecf0f1;
-  border-radius: 20px;
-  height: 20px;
-  margin: 10px 0;
-  overflow: hidden;
-}
-
-.progress {
-  background-color: #007b83;
-  height: 100%;
-  border-radius: 20px;
-  transition: width 0.5s ease;
-}
-
-/* BUTTONS */
-button {
-  background-color: #007b83;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  display: inline-block;
-  text-align: center;
-  margin-top: 10px;
-}
-
-button:hover {
-  background-color: #005e61;
-  transform: translateY(-2px);
 }
 
 /* MOBILE RESPONSIVENESS */
@@ -335,14 +287,18 @@ button:hover {
     margin-left: 0;
   }
 
+  .cta-buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
   .toggle-btn {
     top: 10px;
     left: 10px;
-  }
-
-  .calendar-container,
-  .card {
-    margin: 20px auto;
   }
 }
 

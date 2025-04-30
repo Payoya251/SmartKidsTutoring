@@ -43,6 +43,12 @@
         <label for="email">Email Address *</label>
         <input type="email" id="email" name="email" required>
 
+        <label for="username">Username *</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password *</label>
+        <input type="password" id="password" name="password" required minlength="8">
+
         <label for="subject">Subjects You Can Tutor</label>
         <input type="text" id="subject" name="subject" placeholder="e.g. Math, English, Science">
 
@@ -69,6 +75,8 @@
       const tutorData = {
         name: formData.get('name'),
         email: formData.get('email'),
+        username: formData.get('username'),
+        password: formData.get('password'),
         subject: formData.get('subject'),
         availability: formData.get('availability'),
         message: formData.get('message')
@@ -85,7 +93,7 @@
 
         const result = await response.json();
         if (response.ok) {
-          alert('Tutor account created! Check your email for login details.');
+          alert('Tutor account created successfully! You can now login.');
           event.target.reset();
         } else {
           alert('Error: ' + result.message);

@@ -6,7 +6,7 @@
     <title>Tutor Dashboard | Sharp Kids Tutoring</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Raleway:wght@400;500&display=swap" rel="stylesheet">
-<style>
+    <style>
 * {
   margin: 0;
   padding: 0;
@@ -345,11 +345,18 @@ textarea {
         </div>
 
         <div class="card">
+            <h3>Enroll a Student</h3>
+            <form id="enroll-form">
+                <input type="text" id="student-username" placeholder="Enter student username" required>
+                <button type="submit" class="btn primary">Enroll Student</button>
+                <p id="enroll-message" style="color: red; margin-top: 10px;"></p>
+            </form>
+        </div>
+
+        <div class="card">
             <h3>My Students</h3>
-            <ul class="students-list">
-                <li><span>John Smith</span> - Math</li>
-                <li><span>Jane Doe</span> - Reading</li>
-                <li><span>David Lee</span> - Science</li>
+            <ul class="students-list" id="students-list">
+                <!-- Filled dynamically with JavaScript -->
             </ul>
         </div>
 
@@ -367,67 +374,79 @@ textarea {
     </div>
 
     <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const toggleButton = document.getElementById('toggle-btn');
-    const sidebar = document.getElementById('sidebar');
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButton = document.getElementById('toggle-btn');
+            const sidebar = document.getElementById('sidebar');
 
-    if (toggleButton && sidebar) {
-        toggleButton.addEventListener('click', () => {
-            toggleButton.classList.toggle('open');
-            sidebar.classList.toggle('show');
-        });
+            if (toggleButton && sidebar) {
+                toggleButton.addEventListener('click', () => {
+                    toggleButton.classList.toggle('open');
+                    sidebar.classList.toggle('show');
+                });
 
-        const sidebarLinks = sidebar.querySelectorAll('a');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                toggleButton.classList.remove('open');
-                sidebar.classList.remove('show');
-            });
-        });
-    }
-
-    const currentPath = window.location.pathname.split("/").pop();
-    document.querySelectorAll("nav.sidebar a").forEach((link) => {
-        if (link.getAttribute("href") === currentPath) {
-            link.classList.add("active");
-        }
-    });
-
-    const links = document.querySelectorAll("a[href^='#']");
-    links.forEach((link) => {
-        link.addEventListener("click", function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute("href"));
-            if (target) {
-                target.scrollIntoView({ behavior: "smooth" });
+                const sidebarLinks = sidebar.querySelectorAll('a');
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        toggleButton.classList.remove('open');
+                        sidebar.classList.remove('show');
+                    });
+                });
             }
-        });
-    });
 
-    const prefersDark = localStorage.getItem("darkMode") === "enabled";
-    if (prefersDark) {
-        document.body.classList.add("dark-mode");
-    }
+            const currentPath = window.location.pathname.split("/").pop();
+            document.querySelectorAll("nav.sidebar a").forEach((link) => {
+                if (link.getAttribute("href") === currentPath) {
+                    link.classList.add("active");
+                }
+            });
 
-    const toggleDarkMode = document.getElementById("darkModeToggle");
-    if (toggleDarkMode) {
-        toggleDarkMode.addEventListener("click", function () {
-            document.body.classList.toggle("dark-mode");
-            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
-        });
-    }
+            const prefersDark = localStorage.getItem("darkMode") === "enabled";
+            if (prefersDark) {
+                document.body.classList.add("dark-mode");
+            }
 
-    const forms = document.querySelectorAll("form");
-    forms.forEach((form) => {
-        form.addEventListener("submit", function (e) {
-            e.preventDefault();
-            alert("Form submitted!");
-            form.reset();
-            form.classList.add("submitted");
-            setTimeout(() => form.classList.remove("submitted"), 1000);
+            // Student enrollment logic
+            let enrolledStudents = [];
+
+            document.getElementById('enroll-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const usernameInput = document.getElementById('student-username');
+                const message = document.getElementById('enroll-message');
+
+                const username = usernameInput.value.trim();
+
+                if (enrolledStudents.length >= 3) {
+                    message.textContent = "You can only enroll up to 3 students.";
+                    return;
+                }
+
+                if (!username) {
+                    message.textContent = "Please enter a valid username.";
+                    return;
+                }
+
+                if (enrolledStudents.includes(username)) {
+                    message.textContent = "This student is already enrolled.";
+                } else {
+                    enrolledStudents.push(username);
+                    renderStudentList();
+                    message.textContent = "";
+                    usernameInput.value = "";
+                }
+            });
+
+            function renderStudentList() {
+                const list = document.getElementById('students-list');
+                list.innerHTML = '';
+                enrolledStudents.forEach((student) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${student}</span>`;
+                    list.appendChild(li);
+                });
+            }
+
+            renderStudentList();
         });
-    });
-});
-</script>
+    </script>
 </body>
 </html>

@@ -5,16 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Join Us | Sharp Kids Tutoring</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Add this style for the tutor secret field */
-    #tutorSecretField {
-      display: none;
-      margin: 15px 0;
-    }
-  </style>
 </head>
 <body>
-
   <button class="toggle-btn" id="toggle-btn">&#9776;</button>
 
   <div class="sidebar" id="sidebar">
@@ -48,14 +40,8 @@
         <label for="name">Full Name *</label>
         <input type="text" id="name" name="name" required>
 
-        <label for="username">Username *</label>
-        <input type="text" id="username" name="username" required>
-
-        <label for="email">Email *</label>
+        <label for="email">Email Address *</label>
         <input type="email" id="email" name="email" required>
-
-        <label for="password">Password *</label>
-        <input type="password" id="password" name="password" required>
 
         <label for="subject">Subjects You Can Tutor</label>
         <input type="text" id="subject" name="subject" placeholder="e.g. Math, English, Science">
@@ -67,21 +53,29 @@
         <textarea id="message" name="message" placeholder="Tell us why you're passionate about tutoring!"></textarea>
 
         <button type="submit" class="btn primary">Submit Application</button>
+
+        <div class="back-link">
+          <a href="login.html">Already have an account? Log in</a>
+        </div>
       </form>
     </div>
   </div>
 
-  <script src="script.js"></script>
   <script>
     document.getElementById('tutorApplicationForm').addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      // Get form data
       const formData = new FormData(event.target);
-      const tutorData = Object.fromEntries(formData.entries());
+      const tutorData = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        availability: formData.get('availability'),
+        message: formData.get('message')
+      };
 
       try {
-        const response = await fetch('/api/register/tutor', {
+        const response = await fetch('/api/tutors', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -90,20 +84,18 @@
         });
 
         const result = await response.json();
-        
         if (response.ok) {
-          alert(result.message);
+          alert('Tutor account created! Check your email for login details.');
           event.target.reset();
-          // Redirect to login or show success message
-          window.location.href = 'login.html'; 
         } else {
           alert('Error: ' + result.message);
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Failed to submit application. Please try again.');
+        alert('Failed to submit application. Please check your connection.');
       }
     });
   </script>
+  <script src="script.js"></script>
 </body>
 </html>

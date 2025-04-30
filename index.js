@@ -65,6 +65,10 @@ app.get('/', (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required.' });
+  }
+
   try {
     // Check both collections
     let user = await db.collection("users").findOne({ email });
@@ -106,16 +110,23 @@ app.post('/api/signup', async (req, res) => {
   }
 
   try {
+    // Check if user already exists
     const existingUser = await db.collection("users").findOne({ 
       $or: [{ username }, { email }] 
     });
     
     if (existingUser) {
-      return res.status(409).json({ message: 'Username or email already exists.' });
+      return res.status(409).json({ 
+        message: existingUser.username === username 
+          ? 'Username already exists' 
+          : 'Email already registered' 
+      });
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create student account
     await db.collection("users").insertOne({
       name,
       email,
@@ -125,31 +136,39 @@ app.post('/api/signup', async (req, res) => {
       createdAt: new Date()
     });
 
-    res.status(200).json({ message: 'Student account created successfully!' });
+    res.status(201).json({ message: 'Student account created successfully!' });
   } catch (err) {
-    console.error("Error creating account:", err);
+    console.error("Error creating student account:", err);
     res.status(500).json({ message: 'Server error. Try again later.' });
   }
 });
 
 // Tutor Registration Route
 app.post('/api/tutors', async (req, res) => {
-  const { name, email, subject, availability, message } = req.body;
+  const { name, email, username, password, subject, availability, message } = req.body;
 
-  if (!name || !email) {
-    return res.status(400).json({ message: 'Name and email are required.' });
+  if (!name || !email || !username || !password) {
+    return res.status(400).json({ message: 'All required fields must be filled.' });
   }
 
   try {
-    const existingTutor = await db.collection("tutors").findOne({ email });
+    // Check if username or email already exists
+    const existingTutor = await db.collection("tutors").findOne({ 
+      $or: [{ username }, { email }] 
+    });
+
     if (existingTutor) {
-      return res.status(409).json({ message: 'Email already registered.' });
+      return res.status(409).json({ 
+        message: existingTutor.username === username 
+          ? 'Username already exists' 
+          : 'Email already registered' 
+      });
     }
 
-    const username = email.split('@')[0];
-    const tempPassword = Math.random().toString(36).slice(-8);
-    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create tutor account
     await db.collection("tutors").insertOne({
       name,
       email,
@@ -162,22 +181,37 @@ app.post('/api/tutors', async (req, res) => {
       createdAt: new Date()
     });
 
-    res.status(201).json({ 
-      message: 'Tutor account created successfully!',
-      tempPassword: tempPassword // In production, send this via email instead
-    });
+    res.status(201).json({ message: 'Tutor account created successfully!' });
   } catch (err) {
     console.error("Error saving tutor application:", err);
     res.status(500).json({ message: 'Server error. Try again later.' });
   }
 });
 
-// Health check
+// Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK' });
+  res.status(200).json({ 
+    status: 'OK',
+    database: db ? 'Connected' : 'Disconnected',
+    collections: {
+      users: true,
+      tutors: true
+    }
+  });
 });
 
 // Start server
 app.listen(port, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${port}`);
+});
+
+process.on('SIGINT', async () => {
+  try {
+    await client.close();
+    console.log('MongoDB connection closed');
+    process.exit(0);
+  } catch (err) {
+    console.error('Error closing MongoDB connection:', err);
+    process.exit(1);
+  }
 });

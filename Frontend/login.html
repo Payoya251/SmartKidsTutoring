@@ -6,7 +6,6 @@
   <title>Login - SharpKidsTutoring</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Keep your existing styles from Version 4 */
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: #f0fdfc;
@@ -25,12 +24,32 @@
     .error-message {
       color: #e63946;
       margin-top: 10px;
+      display: none;
     }
-    /* Add other styles as needed */
+    /* Keep all your existing styles */
   </style>
 </head>
 <body>
-  <!-- Keep your sidebar and toggle button HTML -->
+  <button class="toggle-btn" id="toggle-btn">&#9776;</button>
+
+  <div class="sidebar" id="sidebar">
+    <div class="logo">
+      <img src="logo.png" alt="Sharp Kids Tutoring Logo">
+    </div>
+    <nav>
+      <ul>
+        <li><a href="Homepage.html">Home</a></li>
+        <li><a href="AboutUs.html">About Us</a></li>
+        <li><a href="Appointment.html">Appointment</a></li>
+        <li><a href="Blog.html">Blog</a></li>
+        <li><a href="Services.html">Services</a></li>
+        <li><a href="Recruitment.html">Join as Tutor</a></li>
+        <li><a href="ContactUs.html">Contact</a></li>
+        <li><a href="PrivacyPolicy.html">Privacy Policy</a></li>
+        <li><a href="FAQ.html">FAQ</a></li>
+      </ul>
+    </nav>
+  </div>
 
   <div class="content">
     <div class="page-logo">
@@ -47,7 +66,7 @@
 
         <button type="submit" class="btn primary">Login</button>
       </form>
-      <div id="errorMessage" class="error-message" style="display:none;"></div>
+      <div id="errorMessage" class="error-message"></div>
     </div>
     <div style="text-align: center; margin-top: 20px;">
       Don't have an account? <a href="sign_up.html" style="color: #2a9d8f; text-decoration: none; font-weight: bold;">Sign up here</a>
@@ -61,7 +80,7 @@
       const formData = new FormData(event.target);
       const loginData = {
         email: formData.get('email'),
-        password: formData.get('password'),
+        password: formData.get('password')
       };
 
       try {
@@ -77,16 +96,17 @@
         const errorMessageDiv = document.getElementById('errorMessage');
 
         if (response.ok) {
-          alert(result.message); // "Login successful!"
-          localStorage.setItem('username', result.username); // Store the username
-          window.location.href = result.redirect; // Redirect to student_dashboard.html
+          localStorage.setItem('username', result.username);
+          localStorage.setItem('userType', result.userType);
+          window.location.href = result.redirect;
         } else {
           errorMessageDiv.textContent = result.message;
           errorMessageDiv.style.display = 'block';
         }
       } catch (error) {
-        console.error('Fetch error:', error);
-        alert('Failed to connect to server. Please check your connection.');
+        console.error('Error:', error);
+        document.getElementById('errorMessage').textContent = 'Failed to connect to server';
+        document.getElementById('errorMessage').style.display = 'block';
       }
     });
   </script>

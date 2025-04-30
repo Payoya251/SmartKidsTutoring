@@ -3,39 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up - SharpKidsTutoring</title>
+  <title>Login - SharpKidsTutoring</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Keep your existing styles from Version 4 */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0fdfc;
+      color: #264653;
+      padding: 40px;
+    }
+    .content {
+      max-width: 400px;
+      margin: 50px auto;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+    .error-message {
+      color: #e63946;
+      margin-top: 10px;
+    }
+    /* Add other styles as needed */
+  </style>
 </head>
 <body>
-  <button class="toggle-btn" id="toggle-btn">&#9776;</button>
-
-  <div class="sidebar" id="sidebar">
-    <div class="logo">
-      <img src="logo.png" alt="Sharp Kids Tutoring Logo">
-    </div>
-    <nav>
-      <ul>
-        <li><a href="Homepage.html">Home</a></li>
-        <li><a href="AboutUs.html">About Us</a></li>
-        <li><a href="Appointment.html">Appointment</a></li>
-        <li><a href="Blog.html">Blog</a></li>
-        <li><a href="Services.html">Services</a></li>
-        <li><a href="Recruitment.html">Join as Tutor</a></li>
-        <li><a href="ContactUs.html">Contact</a></li>
-        <li><a href="PrivacyPolicy.html">Privacy Policy</a></li>
-        <li><a href="FAQ.html">FAQ</a></li>
-      </ul>
-    </nav>
-  </div>
+  <!-- Keep your sidebar and toggle button HTML -->
 
   <div class="content">
     <div class="page-logo">
       <img src="logo.png" alt="SharpKidsTutoring Logo">
     </div>
-    <h1>Login into your account</h1>
+    <h1>Login to your account</h1>
     <div class="card">
-      <form id="signupForm">
-
+      <form id="loginForm">
         <label for="email">Email Address *</label>
         <input type="email" id="email" name="email" required>
 
@@ -44,51 +47,46 @@
 
         <button type="submit" class="btn primary">Login</button>
       </form>
+      <div id="errorMessage" class="error-message" style="display:none;"></div>
+    </div>
+    <div style="text-align: center; margin-top: 20px;">
+      Don't have an account? <a href="sign_up.html" style="color: #2a9d8f; text-decoration: none; font-weight: bold;">Sign up here</a>
     </div>
   </div>
 
   <script>
-    document.getElementById('signupForm').addEventListener('submit', async (event) => {
+    document.getElementById('loginForm').addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      // Basic client-side validation
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      
-      if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
-      }
-
       const formData = new FormData(event.target);
-      const userData = {
-        name: formData.get('name'),
+      const loginData = {
         email: formData.get('email'),
         password: formData.get('password'),
-        role: formData.get('role')
       };
 
       try {
-        const response = await fetch('http://localhost:3000/api/users/signup', {
+        const response = await fetch('/api/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(userData),
+          body: JSON.stringify(loginData),
         });
 
         const result = await response.json();
-        
+        const errorMessageDiv = document.getElementById('errorMessage');
+
         if (response.ok) {
-          alert('Account created successfully!');
-          // Redirect to login or dashboard
-          window.location.href = 'Login.html';
+          alert(result.message); // "Login successful!"
+          localStorage.setItem('username', result.username); // Store the username
+          window.location.href = result.redirect; // Redirect to student_dashboard.html
         } else {
-          alert(result.message || 'Error creating account');
+          errorMessageDiv.textContent = result.message;
+          errorMessageDiv.style.display = 'block';
         }
       } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to connect to server');
+        console.error('Fetch error:', error);
+        alert('Failed to connect to server. Please check your connection.');
       }
     });
   </script>

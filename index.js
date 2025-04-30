@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 
@@ -35,21 +35,20 @@ async function connectDB() {
     await client.connect();
     db = client.db(dbName);
     console.log("✅ Connected to MongoDB!");
-    
-    // Create collections if they don't exist
+
     const collections = await db.listCollections().toArray();
     const collectionNames = collections.map(c => c.name);
-    
+
     if (!collectionNames.includes('tutors')) {
       await db.createCollection('tutors');
       console.log("Created 'tutors' collection");
     }
-    
+
     if (!collectionNames.includes('users')) {
       await db.createCollection('users');
       console.log("Created 'users' collection");
     }
-    
+
   } catch (err) {
     console.error("❌ MongoDB connection failed:", err);
   }
@@ -70,7 +69,6 @@ app.post('/api/login', async (req, res) => {
   }
 
   try {
-    // Check both collections
     let user = await db.collection("users").findOne({ email });
     let userType = 'student';
 
@@ -110,30 +108,28 @@ app.post('/api/signup', async (req, res) => {
   }
 
   try {
-    // Check if user already exists
-    const existingUser = await db.collection("users").findOne({ 
-      $or: [{ username }, { email }] 
+    const existingUser = await db.collection("users").findOne({
+      $or: [{ username }, { email }]
     });
-    
+
     if (existingUser) {
-      return res.status(409).json({ 
-        message: existingUser.username === username 
-          ? 'Username already exists' 
-          : 'Email already registered' 
+      return res.status(409).json({
+        message: existingUser.username === username
+          ? 'Username already exists'
+          : 'Email already registered'
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create student account
     await db.collection("users").insertOne({
       name,
       email,
       username,
       password: hashedPassword,
       role: 'student',
-      createdAt: new Date()
+      createdAt: new Date(),
+      tutorUsername: null
     });
 
     res.status(201).json({ message: 'Student account created successfully!' });
@@ -152,23 +148,20 @@ app.post('/api/tutors', async (req, res) => {
   }
 
   try {
-    // Check if username or email already exists
-    const existingTutor = await db.collection("tutors").findOne({ 
-      $or: [{ username }, { email }] 
+    const existingTutor = await db.collection("tutors").findOne({
+      $or: [{ username }, { email }]
     });
 
     if (existingTutor) {
-      return res.status(409).json({ 
-        message: existingTutor.username === username 
-          ? 'Username already exists' 
-          : 'Email already registered' 
+      return res.status(409).json({
+        message: existingTutor.username === username
+          ? 'Username already exists'
+          : 'Email already registered'
       });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create tutor account
     await db.collection("tutors").insertOne({
       name,
       email,
@@ -178,7 +171,8 @@ app.post('/api/tutors', async (req, res) => {
       availability,
       message,
       role: 'tutor',
-      createdAt: new Date()
+      createdAt: new Date(),
+      students: [] // Start with no enrolled students
     });
 
     res.status(201).json({ message: 'Tutor account created successfully!' });
@@ -188,9 +182,104 @@ app.post('/api/tutors', async (req, res) => {
   }
 });
 
+// NEW: Tutor searches for student
+app.get('/api/search-student/:username', async (req, res) => {
+  const { username } = req.params;
+  try {
+    const student = await db.collection('users').findOne({ username });
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+
+    res.status(200).json({
+      name: student.name,
+      username: student.username,
+      email: student.email,
+      tutorUsername: student.tutorUsername || null
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// NEW: Tutor enrolls student
+app.post('/api/enroll-student', async (req, res) => {
+  const { tutorUsername, studentUsername } = req.body;
+
+  try {
+    const tutor = await db.collection('tutors').findOne({ username: tutorUsername });
+    const student = await db.collection('users').findOne({ username: studentUsername });
+
+    if (!tutor || !student) {
+      return res.status(404).json({ message: 'Tutor or student not found' });
+    }
+
+    if (student.tutorUsername) {
+      return res.status(400).json({ message: 'This student is already enrolled with another tutor.' });
+    }
+
+    if (tutor.students.length >= 3) {
+      return res.status(400).json({ message: 'Tutor has already enrolled 3 students.' });
+    }
+
+    // Update tutor document
+    await db.collection('tutors').updateOne(
+      { username: tutorUsername },
+      { $push: { students: studentUsername } }
+    );
+
+    // Update student document
+    await db.collection('users').updateOne(
+      { username: studentUsername },
+      { $set: { tutorUsername: tutorUsername } }
+    );
+
+    res.status(200).json({ message: 'Student enrolled successfully!' });
+  } catch (err) {
+    console.error("Error enrolling student:", err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// NEW: Get tutor's students
+app.get('/api/tutor-students/:tutorUsername', async (req, res) => {
+  const { tutorUsername } = req.params;
+  try {
+    const tutor = await db.collection('tutors').findOne({ username: tutorUsername });
+    if (!tutor) return res.status(404).json({ message: 'Tutor not found' });
+
+    const students = await db.collection('users').find({ username: { $in: tutor.students } }).toArray();
+    res.status(200).json({ students });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// NEW: Get student's tutor
+app.get('/api/student-tutor/:studentUsername', async (req, res) => {
+  const { studentUsername } = req.params;
+  try {
+    const student = await db.collection('users').findOne({ username: studentUsername });
+    if (!student || !student.tutorUsername) {
+      return res.status(404).json({ message: 'Tutor not assigned yet' });
+    }
+
+    const tutor = await db.collection('tutors').findOne({ username: student.tutorUsername });
+    if (!tutor) return res.status(404).json({ message: 'Tutor not found' });
+
+    res.status(200).json({
+      name: tutor.name,
+      email: tutor.email,
+      subject: tutor.subject,
+      availability: tutor.availability,
+      message: tutor.message
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
+  res.status(200).json({
     status: 'OK',
     database: db ? 'Connected' : 'Disconnected',
     collections: {

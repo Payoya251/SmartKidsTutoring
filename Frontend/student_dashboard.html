@@ -4,57 +4,115 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Student Dashboard | Sharp Kids Tutoring</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="sidebar active" id="sidebar">
     <div class="logo"><img src="logo.png" alt="Logo" /></div>
+    <button class="toggle-btn" id="toggleBtn">
+      <i class="fas fa-bars"></i>
+    </button>
     <nav>
       <ul>
-        <li><a href="Homepage.html">Home</a></li>
-        <li><a href="ContactUs.html">Contact</a></li>
-        <li><a href="Login.html">Logout</a></li>
+        <li><a href="Homepage.html"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="ContactUs.html"><i class="fas fa-envelope"></i> Contact</a></li>
+        <li><a href="Login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
       </ul>
     </nav>
   </div>
 
-
   <div class="content">
-    <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
-    <h1>Welcome, Sarah Johnson!</h1>
-    <p>Student ID: SKT20458</p>
+    <header class="dashboard-header">
+      <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
+      <div class="user-info">
+        <h1>Welcome, Sarah Johnson!</h1>
+        <p>Student ID: SKT20458</p>
+      </div>
+    </header>
 
+    <div class="dashboard-grid">
+      <div class="card upcoming-sessions">
+        <h3><i class="fas fa-calendar-alt"></i> Upcoming Sessions</h3>
+        <div class="session-item">
+          <span class="subject-badge math">Math</span>
+          <p>Apr 28 · 4:00 PM</p>
+          <a href="#" class="join-btn">Join Call <i class="fas fa-video"></i></a>
+        </div>
+        <div class="session-item">
+          <span class="subject-badge reading">Reading</span>
+          <p>May 1 · 5:00 PM</p>
+          <a href="#" class="join-btn">Join Call <i class="fas fa-video"></i></a>
+        </div>
+      </div>
 
-    <div class="card">
-      <h3>Upcoming Sessions</h3>
-      <p><strong>Math:</strong> Apr 28 · 4:00 PM <a href="#">Join Call</a></p>
-      <p><strong>Reading:</strong> May 1 · 5:00 PM <a href="#">Join Call</a></p>
-    </div>
+      <div class="card calendar-card">
+        <h3><i class="far fa-calendar"></i> Calendar</h3>
+        <div class="calendar-header">
+          <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+          <h4 id="currentMonth">April 2023</h4>
+          <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="calendar-weekdays">
+          <div>Sun</div>
+          <div>Mon</div>
+          <div>Tue</div>
+          <div>Wed</div>
+          <div>Thu</div>
+          <div>Fri</div>
+          <div>Sat</div>
+        </div>
+        <div class="calendar-days" id="calendarDays"></div>
+        <div class="calendar-events">
+          <div class="event-indicator math" data-date="2023-04-28">Math Session 4PM</div>
+          <div class="event-indicator reading" data-date="2023-05-01">Reading Session 5PM</div>
+        </div>
+      </div>
 
+      <div class="card homework-card">
+        <h3><i class="fas fa-book"></i> Submit Homework</h3>
+        <div class="file-upload">
+          <label for="homeworkFile" class="upload-btn">
+            <i class="fas fa-cloud-upload-alt"></i> Choose File
+          </label>
+          <input type="file" id="homeworkFile">
+          <span id="fileName">No file chosen</span>
+        </div>
+        <button class="submit-btn"><i class="fas fa-paper-plane"></i> Submit</button>
+      </div>
 
-    <div class="card">
-      <h3>Submit Homework</h3>
-      <input type="file">
-      <button>Submit</button>
-    </div>
+      <div class="card payment-card">
+        <h3><i class="fas fa-credit-card"></i> Payment Status</h3>
+        <div class="payment-status">
+          <i class="fas fa-check-circle paid-icon"></i>
+          <p>Status: <span class="paid-text">Paid through April</span></p>
+        </div>
+        <button class="payment-btn"><i class="fas fa-dollar-sign"></i> Make Payment</button>
+      </div>
 
-
-    <div class="card">
-      <h3>Payment Status</h3>
-      <p>Status: Paid through April</p>
-      <button>Make Payment</button>
-    </div>
-
-
-    <div class="card">
-      <h3>Your Progress</h3>
-      <p>Math: 5/8</p>
-      <div class="progress-bar"><div class="progress" style="width: 62%"></div></div>
-      <p>Reading: 3/5</p>
-      <div class="progress-bar"><div class="progress" style="width: 60%"></div></div>
+      <div class="card progress-card">
+        <h3><i class="fas fa-chart-line"></i> Your Progress</h3>
+        <div class="progress-item">
+          <div class="progress-info">
+            <span>Math:</span>
+            <span>5/8</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress math-progress" style="width: 62%"></div>
+          </div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-info">
+            <span>Reading:</span>
+            <span>3/5</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress reading-progress" style="width: 60%"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
 
   <script src="script.js"></script>
 </body>

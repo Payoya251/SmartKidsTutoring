@@ -17,26 +17,40 @@
 
     /* Sidebar Styles */
     .sidebar {
-      width: 250px;
+      width: 0;
       background-color: #2c3e50;
       color: white;
-      padding: 20px;
+      padding-top: 60px;
       transition: all 0.3s;
       position: fixed;
       height: 100vh;
+      overflow: hidden;
+      z-index: 1;
     }
 
     .sidebar.active {
-      margin-left: 0;
+      width: 250px;
+      padding: 20px;
+    }
+
+    .sidebar-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 2;
+      color: #2c3e50;
     }
 
     .logo {
       text-align: center;
       margin-bottom: 30px;
+      display: none;
     }
 
-    .logo img {
-      max-width: 80%;
+    .sidebar.active .logo {
+      display: block;
     }
 
     nav ul {
@@ -65,12 +79,22 @@
     /* Content Styles */
     .content {
       flex: 1;
-      margin-left: 250px;
       padding: 30px;
+      margin-left: 0;
+      transition: margin-left 0.3s;
+    }
+
+    .content.shifted {
+      margin-left: 250px;
     }
 
     .page-logo {
-      display: none;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .page-logo img {
+      max-width: 150px;
     }
 
     h1 {
@@ -218,52 +242,23 @@
       background: #3498db;
       border-radius: 50%;
     }
-
-    /* Responsive Styles */
-    @media (max-width: 768px) {
-      .sidebar {
-        margin-left: -250px;
-      }
-      .sidebar.active {
-        margin-left: 0;
-      }
-      .content {
-        margin-left: 0;
-      }
-      .page-logo {
-        display: block;
-        text-align: center;
-        margin-bottom: 20px;
-      }
-      .page-logo img {
-        max-width: 150px;
-      }
-    }
   </style>
 </head>
 <body>
-<!-- Sidebar -->
+  <div class="sidebar-toggle">☰</div>
+  
   <div class="sidebar" id="sidebar">
-    <div class="logo">
-      <img src="logo.png" alt="Sharp Kids Tutoring Logo">
-    </div>
+    <div class="logo"><img src="logo.png" alt="Logo" /></div>
     <nav>
       <ul>
         <li><a href="Homepage.html">Home</a></li>
-        <li><a href="login.html">Login</a></li>
-        <li><a href="AboutUs.html">About Us</a></li>
-        <li><a href="Appointment.html" class="active">Appointment</a></li>
-        <li><a href="Blog.html">Blog</a></li>
-        <li><a href="Services.html">Services</a></li>
-        <li><a href="Recruitment.html">Join as Tutor</a></li>
         <li><a href="ContactUs.html">Contact</a></li>
-        <li><a href="PrivacyPolicy.html">Privacy Policy</a></li>
-        <li><a href="FAQ.html">FAQ</a></li>
+        <li><a href="Login.html">Logout</a></li>
       </ul>
     </nav>
   </div>
 
-  <div class="content">
+  <div class="content" id="content">
     <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
     <h1>Welcome, Sarah Johnson!</h1>
     <p>Student ID: SKT20458</p>
@@ -316,6 +311,13 @@
   </div>
 
   <script>
+    // Sidebar Toggle Functionality
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('content').classList.toggle('shifted');
+    });
+
+    // Calendar Functionality
     document.addEventListener('DOMContentLoaded', function() {
       const monthYearElement = document.getElementById('month-year');
       const calendarDaysElement = document.getElementById('calendar-days');
@@ -326,14 +328,21 @@
       
       // Student's scheduled sessions (date format: "MM/DD/YYYY")
       const sessions = {
-        "04/28/2023": "Math: 4:00 PM",
-        "05/01/2023": "Reading: 5:00 PM",
-        "05/15/2023": "Math: 4:00 PM",
-        "05/22/2023": "Reading: 5:00 PM"
+        "04/28/2024": "Math: 4:00 PM",
+        "05/01/2024": "Reading: 5:00 PM",
+        "05/15/2024": "Math: 4:00 PM",
+        "05/22/2024": "Reading: 5:00 PM"
       };
       
       // Render the calendar
       function renderCalendar() {
+        // Auto-update to current month if needed
+        const today = new Date();
+        if (currentDate.getMonth() !== today.getMonth() || 
+            currentDate.getFullYear() !== today.getFullYear()) {
+          currentDate = new Date();
+        }
+
         // Get the current month and year
         const currentMonth = currentDate.getMonth();
         const currentYear = currentDate.getFullYear();
@@ -362,7 +371,6 @@
         }
         
         // Add days from current month
-        const today = new Date();
         for (let i = 1; i <= daysInMonth; i++) {
           const dayElement = document.createElement('div');
           dayElement.textContent = i;

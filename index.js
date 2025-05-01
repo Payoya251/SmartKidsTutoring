@@ -206,6 +206,7 @@ app.get('/api/search-student/:username', async (req, res) => {
             tutorUsername: student.tutorUsername || null
         });
     } catch (err) {
+        console.error("Error searching for student:", err); // Added error logging
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -213,47 +214,64 @@ app.get('/api/search-student/:username', async (req, res) => {
 // NEW: Tutor enrolls student
 app.post('/api/enroll-student', async (req, res) => {
     const { tutorUsername, studentUsername } = req.body;
+    console.log('➡️ /api/enroll-student called with:', { tutorUsername, studentUsername }); // Keep this log
 
     try {
         const tutor = await db.collection('tutors').findOne({ username: tutorUsername });
+        console.log('🔍 Found tutor:', tutor); // Keep this log
         const student = await db.collection('users').findOne({ username: studentUsername });
+        console.log('🔍 Found student:', student); // Keep this log
 
         if (!tutor || !student) {
+            console.log('❌ Tutor or student not found in database.'); // Keep this log
             return res.status(404).json({ message: 'Tutor or student not found' });
         }
 
         if (student.tutorUsername) {
+            console.log('⚠️ Student is already enrolled with:', student.tutorUsername); // Keep this log
             return res.status(400).json({ message: 'This student is already enrolled with another tutor.' });
         }
 
         // Check if the student is already enrolled by this tutor (using the enrollments collection)
         const existingEnrollment = await db.collection('enrollments').findOne({ tutorUsername: tutorUsername, studentUsername: studentUsername });
+        console.log('📝 Existing enrollment:', existingEnrollment); // Keep this log
         if (existingEnrollment) {
             return res.status(409).json({ message: 'Student is already enrolled by this tutor.' });
         }
 
-        if (tutor.students.length >= 3) {
+        if (tutor.students && tutor.students.length >= 3) { // Added check for tutor.students being defined
+            console.log('🛑 Tutor has reached enrollment limit.'); // Keep this log
             return res.status(400).json({ message: 'Tutor has already enrolled 3 students.' });
+        } else if (!tutor.students) {
+            // Initialize tutor.students if it's undefined (shouldn't happen with the current schema)
+            await db.collection('tutors').updateOne(
+                { username: tutorUsername },
+                { $set: { students: [] } }
+            );
         }
 
         // Update tutor's student list (for potential quick access)
-        await db.collection('tutors').updateOne(
+        const updateTutorResult = await db.collection('tutors').updateOne(
             { username: tutorUsername },
             { $push: { students: studentUsername } }
         );
+        console.log('⬆️ Updated tutor result:', updateTutorResult); // Keep this log
 
         // Update student's tutor assignment
-        await db.collection('users').updateOne(
+        const updateStudentResult = await db.collection('users').updateOne(
             { username: studentUsername },
             { $set: { tutorUsername: tutorUsername } }
         );
+        console.log('⬆️ Updated student result:', updateStudentResult); // Keep this log
 
         // Create an enrollment record
-        await db.collection('enrollments').insertOne({ tutorUsername, studentUsername, enrollmentDate: new Date() });
+        const insertEnrollmentResult = await db.collection('enrollments').insertOne({ tutorUsername, studentUsername, enrollmentDate: new Date() });
+        console.log('➕ Created enrollment record:', insertEnrollmentResult.insertedId); // Keep this log
 
         res.status(200).json({ message: 'Student enrolled successfully!' });
+
     } catch (err) {
-        console.error("Error enrolling student:", err);
+        console.error("🔥 Error enrolling student:", err); // Keep this log
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -266,9 +284,10 @@ app.get('/api/tutor-students/:tutorUsername', async (req, res) => {
         if (!tutor) return res.status(404).json({ message: 'Tutor not found' });
 
         // Fetch students from the 'users' collection where their username is in the tutor's 'students' array
-        const students = await db.collection('users').find({ username: { $in: tutor.students } }).toArray();
+        const students = await db.collection('users').find({ username: { $in: tutor.students || [] } }).toArray(); // Added null check for tutor.students
         res.status(200).json({ students });
     } catch (err) {
+        console.error("Error fetching tutor's students:", err); // Added error logging
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -293,6 +312,7 @@ app.get('/api/student-tutor/:studentUsername', async (req, res) => {
             message: tutor.message
         });
     } catch (err) {
+        console.error("Error fetching student's tutor:", err); // Added error logging
         res.status(500).json({ message: 'Server error' });
     }
 });

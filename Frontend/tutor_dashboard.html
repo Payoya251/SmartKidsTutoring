@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Raleway:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* (Your existing CSS styles here - keep them) */
-        /* ... (rest of your CSS) ... */
-                * {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -303,6 +301,32 @@
             color: #333;
             margin-bottom: 8px;
         }
+
+        /* New styles for student list */
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .student-item button {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+
+        .students-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .students-list li {
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -358,7 +382,8 @@
         <div class="card">
             <h3>My Students</h3>
             <ul class="students-list" id="students-list">
-                </ul>
+                <!-- Students will be dynamically added here -->
+            </ul>
         </div>
 
         <div class="card">
@@ -374,111 +399,171 @@
         </div>
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggleButton = document.getElementById('toggle-btn');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarNav = document.querySelector('.sidebar-nav');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // DOM Elements
+            const toggleButton = document.getElementById('toggle-btn');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarNav = document.querySelector('.sidebar-nav');
+            const enrollForm = document.getElementById('enroll-form');
+            const enrollMessage = document.getElementById('enroll-message');
+            const studentUsernameInput = document.getElementById('student-username');
+            const studentsList = document.getElementById('students-list');
+            
+            // Data
+            let enrolledStudents = [];
 
-        if (toggleButton && sidebar) {
-            toggleButton.addEventListener('click', () => {
-                toggleButton.classList.toggle('open');
-                sidebar.classList.toggle('show');
-            });
-
-            sidebarNav.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
-                    toggleButton.classList.remove('open');
-                    sidebar.classList.remove('show');
+            // Sidebar toggle functionality
+            if (toggleButton && sidebar) {
+                toggleButton.addEventListener('click', () => {
+                    toggleButton.classList.toggle('open');
+                    sidebar.classList.toggle('show');
                 });
-            });
-        }
 
-        const currentPath = window.location.pathname.split("/").pop();
-        sidebarNav.querySelectorAll("a").forEach((link) => {
-            if (link.getAttribute("href") === currentPath) {
-                link.classList.add("active");
-            }
-        });
-
-        const prefersDark = localStorage.getItem("darkMode") === "enabled";
-        if (prefersDark) {
-            document.body.classList.add("dark-mode");
-        }
-
-        const enrollForm = document.getElementById('enroll-form');
-        const enrollMessage = document.getElementById('enroll-message');
-        const studentUsernameInput = document.getElementById('student-username');
-        const studentsList = document.getElementById('students-list');
-        let enrolledStudents = [];
-
-        // Function to fetch the initial list of enrolled students
-        function fetchEnrolledStudents() {
-            const tutorUsername = sessionStorage.getItem('tutorUsername'); // REPLACED HERE!
-            if (tutorUsername) {
-                fetch(`/api/tutor-students/${tutorUsername}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data && data.students) {
-                            enrolledStudents = data.students;
-                            renderStudentList();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching enrolled students:', error);
-                        enrollMessage.textContent = 'Failed to load enrolled students.';
+                sidebarNav.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        toggleButton.classList.remove('open');
+                        sidebar.classList.remove('show');
                     });
-            } else {
-                // Handle the case where tutorUsername is not found (e.g., redirect to login)
-                window.location.href = 'login.html';
+                });
             }
-        }
 
-        // Event listener for the enroll student form submission
-        enrollForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const studentUsername = studentUsernameInput.value.trim();
-            const tutorUsername = sessionStorage.getItem('tutorUsername'); // REPLACED HERE!
+            // Active link highlighting
+            const currentPath = window.location.pathname.split("/").pop();
+            sidebarNav.querySelectorAll("a").forEach((link) => {
+                if (link.getAttribute("href") === currentPath) {
+                    link.classList.add("active");
+                }
+            });
 
-            console.log('Enroll form submitted');
-            console.log('Tutor Username:', tutorUsername);
-            console.log('Student Username:', studentUsername);
+            // Dark mode preference
+            const prefersDark = localStorage.getItem("darkMode") === "enabled";
+            if (prefersDark) {
+                document.body.classList.add("dark-mode");
+            }
 
-            if (tutorUsername) {
-                fetch('/api/enroll-student', {
+            // Function to render student list
+            function renderStudentList() {
+                studentsList.innerHTML = '';
+                
+                if (enrolledStudents.length === 0) {
+                    studentsList.innerHTML = '<li>No students enrolled yet</li>';
+                    return;
+                }
+                
+                enrolledStudents.forEach(student => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <div class="student-item">
+                            <span>${student}</span>
+                            <button class="btn secondary remove-student" data-student="${student}">Remove</button>
+                        </div>
+                    `;
+                    studentsList.appendChild(listItem);
+                });
+                
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-student').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const studentToRemove = this.getAttribute('data-student');
+                        removeStudent(studentToRemove);
+                    });
+                });
+            }
+
+            // Function to remove a student
+            function removeStudent(studentUsername) {
+                const tutorUsername = sessionStorage.getItem('tutorUsername');
+                
+                fetch('/api/remove-student', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ tutorUsername: tutorUsername, studentUsername: studentUsername }),
+                    body: JSON.stringify({ tutorUsername, studentUsername }),
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(errorData.message || 'Failed to enroll student.');
-                        });
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    enrollMessage.textContent = data.message;
-                    enrolledStudents.push(studentUsername);
-                    renderStudentList();
-                    studentUsernameInput.value = '';
+                    if (data.success) {
+                        enrolledStudents = enrolledStudents.filter(s => s !== studentUsername);
+                        renderStudentList();
+                    }
                 })
                 .catch(error => {
-                    console.error('Error enrolling student:', error);
-                    enrollMessage.textContent = error.message;
+                    console.error('Error removing student:', error);
+                    enrollMessage.textContent = 'Failed to remove student.';
                 });
-            } else {
-                // Handle the case where tutorUsername is not found (e.g., they are not logged in)
-                window.location.href = 'login.html';
             }
-        });
 
-        // Fetch the initial enrolled students when the page loads
-        fetchEnrolledStudents();
-    });
-</script>
+            // Function to fetch enrolled students
+            function fetchEnrolledStudents() {
+                const tutorUsername = sessionStorage.getItem('tutorUsername');
+                if (tutorUsername) {
+                    fetch(`/api/tutor-students/${tutorUsername}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.students) {
+                                enrolledStudents = data.students;
+                                renderStudentList();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching enrolled students:', error);
+                            enrollMessage.textContent = 'Failed to load enrolled students.';
+                        });
+                } else {
+                    window.location.href = 'login.html';
+                }
+            }
+
+            // Event listener for enroll form submission
+            enrollForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const studentUsername = studentUsernameInput.value.trim();
+                const tutorUsername = sessionStorage.getItem('tutorUsername');
+
+                if (!studentUsername) {
+                    enrollMessage.textContent = 'Please enter a student username';
+                    return;
+                }
+
+                if (tutorUsername) {
+                    fetch('/api/enroll-student', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            tutorUsername: tutorUsername, 
+                            studentUsername: studentUsername 
+                        }),
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw new Error(errorData.message || 'Failed to enroll student.');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        enrollMessage.textContent = data.message || 'Student enrolled successfully!';
+                        enrolledStudents.push(studentUsername);
+                        renderStudentList();
+                        studentUsernameInput.value = '';
+                    })
+                    .catch(error => {
+                        console.error('Error enrolling student:', error);
+                        enrollMessage.textContent = error.message;
+                    });
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Initialize the page
+            fetchEnrolledStudents();
+        });
+    </script>
 </body>
 </html>

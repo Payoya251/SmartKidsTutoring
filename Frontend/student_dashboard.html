@@ -5,251 +5,251 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Student Dashboard | Sharp Kids Tutoring</title>
     <style>
-        /* (Your existing CSS styles here - keep them) */
-        /* ... (rest of your CSS) ... */
-               Base Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            min-height: 100vh;
-            background-color: #f5f7fa;
-        }
+        /* ... (Your CSS Styles Here) ... */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            color: #2c3e50;
+        }
 
-        /* Sidebar Styles */
-        .sidebar {
-            width: 250px;
-            background-color: #2c3e50;
-            color: white;
-            padding: 20px;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 1;
-            left: -300px; /* Completely hidden by default */
-            transition: left 0.3s ease;
-        }
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1;
+            left: -300px; /* Hidden by default */
+            transition: left 0.3s ease;
+        }
 
-        .sidebar.active {
-            left: 0; /* Slide in when active */
-        }
+        .sidebar.active {
+            left: 0; /* Slide in when active */
+        }
 
-        .sidebar-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 2;
-            color: #2c3e50;
-            background: white;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-        }
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2;
+            color: #2c3e50;
+            background: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+        }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-            display: block;
-            padding: 10px;
-        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            display: block;
+            padding: 10px;
+        }
 
-        .logo img {
-            max-width: 100%;
-            height: auto;
-        }
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
 
-        nav ul {
-            list-style: none;
-            padding: 0;
-        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
 
-        nav ul li {
-            margin-bottom: 15px;
-        }
+        nav ul li {
+            margin-bottom: 15px;
+        }
 
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            display: block;
-            padding: 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
 
-        nav ul li a:hover {
-            background-color: #34495e;
-        }
+        nav ul li a:hover {
+            background-color: #34495e;
+        }
 
-        /* Content Styles */
-        .content {
-            flex: 1;
-            padding: 30px;
-            transition: margin-left 0.3s;
-            width: 100%;
-        }
+        /* Content Styles */
+        .content {
+            flex: 1;
+            padding: 30px;
+            transition: margin-left 0.3s;
+            width: 100%;
+            margin-left: 0; /* Default margin */
+        }
 
-        .content.shifted {
-            margin-left: 250px;
-        }
+        .content.shifted {
+            margin-left: 250px; /* Shift when sidebar is active */
+        }
 
-        .page-logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .page-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-        .page-logo img {
-            max-width: 150px;
-        }
+        .page-logo img {
+            max-width: 150px;
+        }
 
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
 
-        /* Card Styles */
-        .card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
 
-        .card h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
+        .card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
 
-        /* Progress Bar Styles */
-        .progress-bar {
-            background-color: #ecf0f1;
-            border-radius: 20px;
-            height: 20px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
+        /* Progress Bar Styles */
+        .progress-bar {
+            background-color: #ecf0f1;
+            border-radius: 20px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
 
-        .progress {
-            background-color: #3498db;
-            height: 100%;
-            border-radius: 20px;
-        }
+        .progress {
+            background-color: #3498db;
+            height: 100%;
+            border-radius: 20px;
+        }
 
-        /* Button Styles */
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-        }
+        /* Button Styles */
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
 
-        button:hover {
-            background-color: #2980b9;
-        }
+        button:hover {
+            background-color: #2980b9;
+        }
 
-        /* Calendar Styles */
-        .calendar-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
+        /* Calendar Styles */
+        .calendar-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #3498db;
-            color: white;
-        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #3498db;
+            color: white;
+        }
 
-        .calendar-header button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2em;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 0;
-        }
+        .calendar-header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0;
+        }
 
-        .calendar-header button:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+        .calendar-header button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
-        .calendar-weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            background: #f1f1f1;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px 0;
-        }
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: #f1f1f1;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px 0;
+        }
 
-        .calendar-weekdays div {
-            padding: 5px;
-        }
+        .calendar-weekdays div {
+            padding: 5px;
+        }
 
-        .calendar-days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            padding: 10px;
-        }
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            padding: 10px;
+        }
 
-        .calendar-days div {
-            padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            cursor: pointer;
-            min-height: 30px;
-        }
+        .calendar-days div {
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            min-height: 30px;
+        }
 
-        .calendar-days div:hover {
-            background: #e0e0e0;
-        }
+        .calendar-days div:hover {
+            background: #e0e0e0;
+        }
 
-        .calendar-days .prev-month,
-        .calendar-days .next-month {
-            color: #aaa;
-        }
+        .calendar-days .prev-month,
+        .calendar-days .next-month {
+            color: #aaa;
+        }
 
-        .calendar-days .today {
-            background: #3498db;
-            color: white;
-            font-weight: bold;
-        }
+        .calendar-days .today {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
 
-        .calendar-days .has-session {
-            background: #e8f4fc;
-            position: relative;
-        }
+        .calendar-days .has-session {
+            background: #e8f4fc;
+            position: relative;
+        }
 
-        .calendar-days .has-session::after {
-            content: '';
-            position: absolute;
-            bottom: 3px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 6px;
-            height: 6px;
-            background: #3498db;
-            border-radius: 50%;
-        }
+        .calendar-days .has-session::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: #3498db;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
@@ -267,7 +267,6 @@
                 <li><a href="Appointment.html">Appointment</a></li>
                 <li><a href="Blog.html">Blog</a></li>
                 <li><a href="Services.html">Services</a></li>
-                <li><a href="Recruitment.html">Join as Tutor</a></li>
                 <li><a href="ContactUs.html">Contact</a></li>
                 <li><a href="PrivacyPolicy.html">Privacy Policy</a></li>
                 <li><a href="FAQ.html">FAQ</a></li>
@@ -278,12 +277,12 @@
     <div class="content" id="content">
         <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
         <h1 id="student-name">Welcome, [Student Name]!</h1>
-        <p id="student-id">Student ID: [Student ID]</p>
+        <p id="student-id">Student ID: [SKT-XXXXX]</p>
 
         <div class="calendar-container">
             <div class="calendar-header">
                 <button id="prev-month">&lt;</button>
-                <h2 id="month-year">April 2025</h2>
+                <h2 id="month-year"></h2>
                 <button id="next-month">&gt;</button>
             </div>
             <div class="calendar-weekdays">
@@ -302,7 +301,7 @@
         <div class="card">
             <h3>Upcoming Sessions</h3>
             <div id="upcoming-sessions">
-                <p>No upcoming sessions scheduled.</p>
+                <p>Loading upcoming sessions...</p>
             </div>
         </div>
 
@@ -319,16 +318,15 @@
 
         <div class="card">
             <h3>Payment Status</h3>
-            <p>Status: Paid through April</p>
+            <p id="payment-status">Loading payment status...</p>
             <button>Make Payment</button>
         </div>
 
         <div class="card">
             <h3>Your Progress</h3>
-            <p>Math: 5/8</p>
-            <div class="progress-bar"><div class="progress" style="width: 62%"></div></div>
-            <p>Reading: 3/5</p>
-            <div class="progress-bar"><div class="progress" style="width: 60%"></div></div>
+            <div id="progress-report">
+                <p>Loading progress...</p>
+            </div>
         </div>
     </div>
 
@@ -348,35 +346,47 @@
             const studentNameElement = document.getElementById('student-name');
             const studentIdElement = document.getElementById('student-id');
             const tutorInfoCard = document.getElementById('tutor-info-card');
+            const paymentStatusElement = document.getElementById('payment-status');
+            const progressReportDiv = document.getElementById('progress-report');
 
             let currentDate = new Date();
             let currentMonth = currentDate.getMonth();
             let currentYear = currentDate.getFullYear();
+            let studentUsername = sessionStorage.getItem('studentUsername'); // Get student username
 
-            // Replace 'YOUR_STUDENT_USERNAME' with how you get the logged-in student's username
-            const studentUsername = 'YOUR_STUDENT_USERNAME'; // Example: sessionStorage.getItem('username');
+            if (!studentUsername) {
+                // Redirect to login if no student username found
+                window.location.href = 'login.html';
+            } else {
+                studentNameElement.textContent = `Welcome, ${studentUsername}!`;
+                studentIdElement.textContent = `Student ID: [SKT-${Math.floor(Math.random() * 10000)}]`; // Example ID
 
-            // Function to fetch student's tutor information
-            function fetchTutorInfo() {
-                const currentStudentUsername = 'YOUR_STUDENT_USERNAME'; // Make sure this is correct
-                console.log('Fetching tutor info for:', currentStudentUsername);
-                fetch(`/api/student-tutor/${currentStudentUsername}`)
+                fetchTutorInfo(studentUsername);
+                fetchUpcomingSessions(studentUsername);
+                renderCalendar(currentYear, currentMonth, {}); // Initial empty sessions, will fetch later
+                fetchPaymentStatus(studentUsername);
+                fetchProgress(studentUsername);
+                fetchCalendarSessions(studentUsername, currentYear, currentMonth); // Fetch sessions for the calendar
+            }
+
+            function fetchTutorInfo(username) {
+                fetch(`/api/student-tutor/${username}`)
                     .then(response => response.json())
                     .then(data => {
-                        if (response.ok) {
+                        if (response.ok && data) {
                             const tutorDetails = `
                                 <h3>Your Tutor</h3>
-                                <p><strong>Name:</strong> ${data.name}</p>
-                                <p><strong>Email:</strong> ${data.email}</p>
-                                <p><strong>Subject:</strong> ${data.subject}</p>
-                                <p><strong>Availability:</strong> ${data.availability}</p>
-                                <p><strong>Message:</strong> ${data.message}</p>
+                                <p><strong>Name:</strong> ${data.name || 'Not Assigned'}</p>
+                                <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                                <p><strong>Subject:</strong> ${data.subject || 'N/A'}</p>
+                                <p><strong>Availability:</strong> ${data.availability || 'N/A'}</p>
+                                <p><strong>Message:</strong> ${data.message || ''}</p>
                             `;
                             tutorInfoCard.innerHTML = tutorDetails;
                         } else if (response.status === 404) {
                             tutorInfoCard.innerHTML = '<h3>Your Tutor</h3><p>No tutor assigned yet.</p>';
                         } else {
-                            console.error('Error fetching tutor information:', data.message);
+                            console.error('Error fetching tutor information:', data ? data.message : response.status);
                             tutorInfoCard.innerHTML = '<h3>Your Tutor</h3><p>Failed to load tutor information.</p>';
                         }
                     })
@@ -386,35 +396,82 @@
                     });
             }
 
-            // Replace with actual student data fetching if you have it
-            studentNameElement.textContent = `Welcome, [${studentUsername}]!`; // Use the username for now
-            studentIdElement.textContent = `Student ID: [SKT-${Math.floor(Math.random() * 10000)}]`; // Example ID
+            function fetchUpcomingSessions(username) {
+                fetch(`/api/student-sessions/upcoming/${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (response.ok && Array.isArray(data) && data.length > 0) {
+                            const sessionsHTML = data.map(session =>
+                                `<p><strong>${session.subject}:</strong> ${new Date(session.date).toLocaleDateString()} · <span class="math-inline">\{session\.time\} <a href\="</span>{session.joinLink || '#'}">Join Call</a></p>`
+                            ).join('');
+                            upcomingSessionsDiv.innerHTML = sessionsHTML;
+                        } else {
+                            upcomingSessionsDiv.innerHTML = '<p>No upcoming sessions scheduled.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching upcoming sessions:', error);
+                        upcomingSessionsDiv.innerHTML = '<p>Failed to load upcoming sessions.</p>';
+                    });
+            }
 
-            // Calendar Functionality (mostly the same as your original, but using fetched sessions)
+            function fetchPaymentStatus(username) {
+                fetch(`/api/student-payment-status/${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (response.ok && data && data.status) {
+                            paymentStatusElement.textContent = `Status: ${data.status} ${data.dueDate ? ' (Due: ' + new Date(data.dueDate).toLocaleDateString() + ')' : ''}`;
+                        } else {
+                            paymentStatusElement.textContent = 'Failed to load payment status.';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching payment status:', error);
+                        paymentStatusElement.textContent = 'Failed to load payment status.';
+                    });
+            }
+
+            function fetchProgress(username) {
+                fetch(`/api/student-progress/${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (response.ok && data && Array.isArray(data)) {
+                            const progressHTML = data.map(item =>
+                                `<p>${item.subject}: <span class="math-inline">\{item\.completed\}/</span>{item.total}</p><div class="progress-bar"><div class="progress" style="width: ${item.percentage}%"></div></div>`
+                            ).join('');
+                            progressReportDiv.innerHTML = progressHTML;
+                        } else {
+                            progressReportDiv.innerHTML = '<p>Loading progress...</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching progress:', error);
+                        progressReportDiv.innerHTML = '<p>Failed to load progress.</p>';
+                    });
+            }
+
             function renderCalendar(year, month, sessions) {
                 const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 const daysInPrevMonth = new Date(year, month, 0).getDate();
-                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                    'July', 'August', 'September', 'October', 'November', 'December'];
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                 monthYearElement.textContent = `${monthNames[month]} ${year}`;
                 calendarDaysElement.innerHTML = '';
 
                 let dayCounter = 1;
-                for (let i = 0; i < 6; i++) { // Up to 6 rows for the calendar
+                for (let i = 0; i < 6; i++) {
                     let row = document.createElement('div');
                     row.classList.add('calendar-row');
-                    for (let j = 0; j < 7; j++) { // 7 days in a week
+                    for (let j = 0; j < 7; j++) {
                         const dayElement = document.createElement('div');
-                        if (i === 0 && j < firstDay) {
-                            dayElement.classList.add('prev-month');
+                        if (i === 0 && j < firstdayElement.classList.add('prev-month');
                             dayElement.textContent = daysInPrevMonth - (firstDay - j - 1);
                         } else if (dayCounter <= daysInMonth) {
                             dayElement.textContent = dayCounter;
-                            const formattedDate = `<span class="math-inline">\{month \+ 1\}/</span>{dayCounter}/${year}`;
+                            const formattedDate = `${String(month + 1).padStart(2, '0')}/${String(dayCounter).padStart(2, '0')}/${year}`;
                             if (sessions[formattedDate]) {
                                 dayElement.classList.add('has-session');
-                                dayElement.title = sessions[formattedDate];
+                                dayElement.title = sessions[formattedDate]; // You might want to make this more informative
                             }
                             const today = new Date();
                             if (dayCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
@@ -429,29 +486,47 @@
                         row.appendChild(dayElement);
                     }
                     calendarDaysElement.appendChild(row);
-                    if (dayCounter > daysInMonth && calendarDaysElement.children.length >= 5) break; // Stop if enough rows
+                    if (dayCounter > daysInMonth && calendarDaysElement.children.length >= 5) break;
                 }
             }
 
-            function fetchUpcomingSessions() {
-                // You'll need a specific API endpoint to fetch upcoming sessions for a student
-                // This is just placeholder data for now
-                const upcomingSessions = [
-                    { subject: 'Math', date: 'Apr 28', time: '4:00 PM', link: '#' },
-                    { subject: 'Reading', date: 'May 1', time: '5:00 PM', link: '#' }
-                ];
-
-                if (upcomingSessions.length > 0) {
-                    upcomingSessionsDiv.innerHTML = upcomingSessions.map(session =>
-                        `<p><strong>${session.subject}:</strong> ${session.date} · <span class="math-inline">\{session\.time\} <a href\="</span>{session.link}">Join Call</a></p>`
-                    ).join('');
-                } else {
-                    upcomingSessionsDiv.innerHTML = '<p>No upcoming sessions scheduled.</p>';
-                }
+            function fetchCalendarSessions(username, year, month) {
+                // Adjust the API endpoint to accept year and month if needed on the backend
+                fetch(`/api/student-sessions/calendar/${username}/${year}/${month + 1}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (response.ok && data) {
+                            // Assuming the backend returns an object where keys are 'MM/DD/YYYY'
+                            renderCalendar(year, month, data);
+                        } else {
+                            console.error('Error fetching calendar sessions:', data ? data.message : response.status);
+                            renderCalendar(year, month, {}); // Render an empty calendar on error
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching calendar sessions:', error);
+                        renderCalendar(year, month, {}); // Render an empty calendar on error
+                    });
             }
 
-            function fetchCalendarSessions() {
-                // Replace with your actual API endpoint to get student's sessions
-                // This should return an object where keys are dates (MM/DD/YYYY) and values are session info
-                const sessionsData = {
-                    "04/28/2025":
+            prevMonthButton.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                fetchCalendarSessions(studentUsername, currentYear, currentMonth);
+            });
+
+            nextMonthButton.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                fetchCalendarSessions(studentUsername, currentYear, currentMonth);
+            });
+        });
+    </script>
+</body>
+</html>

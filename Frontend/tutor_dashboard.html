@@ -373,9 +373,9 @@
             </div>
         </div>
     </div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Sidebar toggle functionality
         const toggleButton = document.getElementById('toggle-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarNav = document.querySelector('.sidebar-nav');
@@ -394,91 +394,93 @@
             });
         }
 
-        const currentPath = window.location.pathname.split("/").pop();
-        sidebarNav.querySelectorAll("a").forEach((link) => {
-            if (link.getAttribute("href") === currentPath) {
-                link.classList.add("active");
-            }
-        });
-
-        const prefersDark = localStorage.getItem("darkMode") === "enabled";
-        if (prefersDark) {
-            document.body.classList.add("dark-mode");
-        }
-
+        // Student enrollment functionality
         const enrollForm = document.getElementById('enroll-form');
         const enrollMessage = document.getElementById('enroll-message');
         const studentUsernameInput = document.getElementById('student-username');
         const studentsList = document.getElementById('students-list');
-        let enrolledStudents = [];
-
-        // Function to fetch the initial list of enrolled students
-        function fetchEnrolledStudents() {
-            const tutorUsername = sessionStorage.getItem('tutorUsername'); // REPLACED HERE!
-            if (tutorUsername) {
-                fetch(`/api/tutor-students/${tutorUsername}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data && data.students) {
-                            enrolledStudents = data.students;
-                            renderStudentList();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching enrolled students:', error);
-                        enrollMessage.textContent = 'Failed to load enrolled students.';
-                    });
-            } else {
-                // Handle the case where tutorUsername is not found (e.g., redirect to login)
-                window.location.href = 'login.html';
-            }
+        
+        // Mock function to simulate checking if username exists
+        function checkUsernameExists(username) {
+            // In a real app, this would be a fetch call to your backend
+            // For testing, we'll simulate a check with a timeout
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Simulate checking against a "database"
+                    const existingUsers = ['student1', 'student2', 'johnsmith', 'janedoe'];
+                    resolve(existingUsers.includes(username.toLowerCase()));
+                }, 500);
+            });
         }
 
-        // Event listener for the enroll student form submission
-        enrollForm.addEventListener('submit', function(e) {
+        // Function to render the student list
+        function renderStudentList(students = []) {
+            studentsList.innerHTML = '';
+            if (students.length === 0) {
+                studentsList.innerHTML = '<li>No students enrolled yet</li>';
+                return;
+            }
+            
+            students.forEach(student => {
+                const li = document.createElement('li');
+                li.textContent = student;
+                studentsList.appendChild(li);
+            });
+        }
+
+        // Event listener for form submission
+        enrollForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const studentUsername = studentUsernameInput.value.trim();
-            const tutorUsername = sessionStorage.getItem('tutorUsername'); // REPLACED HERE!
+            
+            if (!studentUsername) {
+                enrollMessage.textContent = 'Please enter a username';
+                return;
+            }
 
-            console.log('Enroll form submitted');
-            console.log('Tutor Username:', tutorUsername);
-            console.log('Student Username:', studentUsername);
+            try {
+                // Check if username exists in "database"
+                const userExists = await checkUsernameExists(studentUsername);
+                
+                if (!userExists) {
+                    enrollMessage.textContent = 'Username not found in our system';
+                    return;
+                }
 
-            if (tutorUsername) {
-                fetch('/api/enroll-student', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ tutorUsername: tutorUsername, studentUsername: studentUsername }),
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(errorData.message || 'Failed to enroll student.');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    enrollMessage.textContent = data.message;
-                    enrolledStudents.push(studentUsername);
-                    renderStudentList();
-                    studentUsernameInput.value = '';
-                })
-                .catch(error => {
-                    console.error('Error enrolling student:', error);
-                    enrollMessage.textContent = error.message;
-                });
-            } else {
-                // Handle the case where tutorUsername is not found (e.g., they are not logged in)
-                window.location.href = 'login.html';
+                // In a real app, here you would send the enrollment request to your backend
+                // For now, we'll simulate success
+                enrollMessage.textContent = '';
+                enrollMessage.style.color = 'green';
+                enrollMessage.textContent = `Successfully enrolled ${studentUsername}`;
+                
+                // Add to local list (in a real app, this would come from backend response)
+                const currentStudents = Array.from(studentsList.children).map(li => li.textContent);
+                if (!currentStudents.includes(studentUsername)) {
+                    const li = document.createElement('li');
+                    li.textContent = studentUsername;
+                    studentsList.appendChild(li);
+                }
+                
+                studentUsernameInput.value = '';
+                
+                // In a real app, you might want to:
+                // 1. Save to localStorage as a fallback
+                // 2. Send to your backend API
+                // localStorage.setItem('enrolledStudents', JSON.stringify([...currentStudents, studentUsername]));
+                
+            } catch (error) {
+                console.error('Error:', error);
+                enrollMessage.style.color = 'red';
+                enrollMessage.textContent = 'An error occurred. Please try again.';
             }
         });
 
-        // Fetch the initial enrolled students when the page loads
-        fetchEnrolledStudents();
+        // Initialize with any previously enrolled students
+        // In a real app, you would fetch these from your backend
+        const mockEnrolledStudents = ['johnsmith', 'janedoe'];
+        renderStudentList(mockEnrolledStudents);
     });
 </script>
+
 </body>
 </html>

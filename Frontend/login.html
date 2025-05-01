@@ -72,44 +72,49 @@
       Don't have an account? <a href="sign_up.html" style="color: #2a9d8f; text-decoration: none; font-weight: bold;">Sign up here</a>
     </div>
   </div>
+<script>
+        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
+            const formData = new FormData(event.target);
+            const loginData = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
 
-      const formData = new FormData(event.target);
-      const loginData = {
-        email: formData.get('email'),
-        password: formData.get('password')
-      };
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData),
+                });
 
-      try {
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(loginData),
+                const result = await response.json();
+                const errorMessageDiv = document.getElementById('errorMessage');
+
+                if (response.ok) {
+                    localStorage.setItem('username', result.username); // Keep storing in localStorage for general use
+                    localStorage.setItem('userType', result.userType);
+
+                    if (result.userType === 'tutor') {
+                        sessionStorage.setItem('tutorUsername', result.username); // Store tutor username in sessionStorage
+                    } else if (result.userType === 'student') {
+                        sessionStorage.setItem('studentUsername', result.username); // Store student username in sessionStorage if needed
+                    }
+                    window.location.href = result.redirect;
+                } else {
+                    errorMessageDiv.textContent = result.message;
+                    errorMessageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorMessage').textContent = 'Failed to connect to server';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
         });
-
-        const result = await response.json();
-        const errorMessageDiv = document.getElementById('errorMessage');
-
-        if (response.ok) {
-          localStorage.setItem('username', result.username);
-          localStorage.setItem('userType', result.userType);
-          window.location.href = result.redirect;
-        } else {
-          errorMessageDiv.textContent = result.message;
-          errorMessageDiv.style.display = 'block';
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('errorMessage').textContent = 'Failed to connect to server';
-        document.getElementById('errorMessage').style.display = 'block';
-      }
-    });
-  </script>
+    </script>
   <script src="script.js"></script>
 </body>
 </html>

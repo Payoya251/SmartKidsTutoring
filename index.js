@@ -9,7 +9,6 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// MongoDB Configuration
 const uri = "mongodb+srv://anthonyventura2324:36kgQwCf6zqWEiDa@smartkidstutoring.jahng0c.mongodb.net/SmartKidsTutoring?retryWrites=true&w=majority";
 const dbName = "SmartKidsTutoring";
 
@@ -232,22 +231,26 @@ app.post('/api/enroll-student', async (req, res) => {
             return res.status(400).json({ message: 'This student is already enrolled with another tutor.' });
         }
 
-        // Check if the student is already enrolled by this tutor (using the enrollments collection)
         const existingEnrollment = await db.collection('enrollments').findOne({ tutorUsername: tutorUsername, studentUsername: studentUsername });
         console.log('📝 Existing enrollment:', existingEnrollment); // Keep this log
         if (existingEnrollment) {
             return res.status(409).json({ message: 'Student is already enrolled by this tutor.' });
         }
 
-        if (tutor.students && tutor.students.length >= 3) { // Added check for tutor.students being defined
-            console.log('🛑 Tutor has reached enrollment limit.'); // Keep this log
-            return res.status(400).json({ message: 'Tutor has already enrolled 3 students.' });
-        } else if (!tutor.students) {
-            // Initialize tutor.students if it's undefined (shouldn't happen with the current schema)
+        // More robust check to ensure tutor.students is an array before checking length
+        if (!tutor || !tutor.students || !Array.isArray(tutor.students)) {
+            console.log('⚠️ Tutor object or tutor.students is undefined or not an array. Initializing to empty array.');
             await db.collection('tutors').updateOne(
                 { username: tutorUsername },
                 { $set: { students: [] } }
             );
+            const updatedTutor = await db.collection('tutors').findOne({ username: tutorUsername });
+            tutor = updatedTutor; // Update the local tutor object
+        }
+
+        if (tutor.students.length >= 3) {
+            console.log('🛑 Tutor has reached enrollment limit.'); // Keep this log
+            return res.status(400).json({ message: 'Tutor has already enrolled 3 students.' });
         }
 
         // Update tutor's student list (for potential quick access)

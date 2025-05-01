@@ -213,26 +213,26 @@ app.get('/api/search-student/:username', async (req, res) => {
 // NEW: Tutor enrolls student
 app.post('/api/enroll-student', async (req, res) => {
     const { tutorUsername, studentUsername } = req.body;
-    console.log('➡️ /api/enroll-student called with:', { tutorUsername, studentUsername }); // Keep this log
+    console.log('➡️ /api/enroll-student called with:', { tutorUsername, studentUsername });
 
     try {
-        const tutor = await db.collection('tutors').findOne({ username: tutorUsername });
-        console.log('🔍 Found tutor:', tutor); // Keep this log
+        let tutor = await db.collection('tutors').findOne({ username: tutorUsername }); // Changed 'const' to 'let'
+        console.log('🔍 Found tutor:', tutor);
         const student = await db.collection('users').findOne({ username: studentUsername });
-        console.log('🔍 Found student:', student); // Keep this log
+        console.log('🔍 Found student:', student);
 
         if (!tutor || !student) {
-            console.log('❌ Tutor or student not found in database.'); // Keep this log
+            console.log('❌ Tutor or student not found in database.');
             return res.status(404).json({ message: 'Tutor or student not found' });
         }
 
         if (student.tutorUsername) {
-            console.log('⚠️ Student is already enrolled with:', student.tutorUsername); // Keep this log
+            console.log('⚠️ Student is already enrolled with:', student.tutorUsername);
             return res.status(400).json({ message: 'This student is already enrolled with another tutor.' });
         }
 
         const existingEnrollment = await db.collection('enrollments').findOne({ tutorUsername: tutorUsername, studentUsername: studentUsername });
-        console.log('📝 Existing enrollment:', existingEnrollment); // Keep this log
+        console.log('📝 Existing enrollment:', existingEnrollment);
         if (existingEnrollment) {
             return res.status(409).json({ message: 'Student is already enrolled by this tutor.' });
         }
@@ -245,11 +245,11 @@ app.post('/api/enroll-student', async (req, res) => {
                 { $set: { students: [] } }
             );
             const updatedTutor = await db.collection('tutors').findOne({ username: tutorUsername });
-            tutor = updatedTutor; // Update the local tutor object
+            tutor = updatedTutor; // Now this assignment is valid because 'tutor' is 'let'
         }
 
-        if (tutor.students.length >= 3) {
-            console.log('🛑 Tutor has reached enrollment limit.'); // Keep this log
+        if (tutor.students && tutor.students.length >= 3) {
+            console.log('🛑 Tutor has reached enrollment limit.');
             return res.status(400).json({ message: 'Tutor has already enrolled 3 students.' });
         }
 
@@ -258,23 +258,23 @@ app.post('/api/enroll-student', async (req, res) => {
             { username: tutorUsername },
             { $push: { students: studentUsername } }
         );
-        console.log('⬆️ Updated tutor result:', updateTutorResult); // Keep this log
+        console.log('⬆️ Updated tutor result:', updateTutorResult);
 
         // Update student's tutor assignment
         const updateStudentResult = await db.collection('users').updateOne(
             { username: studentUsername },
             { $set: { tutorUsername: tutorUsername } }
         );
-        console.log('⬆️ Updated student result:', updateStudentResult); // Keep this log
+        console.log('⬆️ Updated student result:', updateStudentResult);
 
         // Create an enrollment record
         const insertEnrollmentResult = await db.collection('enrollments').insertOne({ tutorUsername, studentUsername, enrollmentDate: new Date() });
-        console.log('➕ Created enrollment record:', insertEnrollmentResult.insertedId); // Keep this log
+        console.log('➕ Created enrollment record:', insertEnrollmentResult.insertedId);
 
         res.status(200).json({ message: 'Student enrolled successfully!' });
 
     } catch (err) {
-        console.error("🔥 Error enrolling student:", err); // Keep this log
+        console.error("🔥 Error enrolling student:", err);
         res.status(500).json({ message: 'Server error' });
     }
 });

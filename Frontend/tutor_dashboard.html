@@ -472,7 +472,7 @@
                     studentsList.innerHTML = `
                         <li>
                             <div class="empty-list-message">
-                                No hay estudiantes inscritos
+                                No enrolled students
                             </div>
                         </li>
                     `;
@@ -508,7 +508,7 @@
             async function removeStudent(studentId, studentUsername) {
                 try {
                     const tutorUsername = sessionStorage.getItem('tutorUsername');
-                    if (!tutorUsername) throw new Error('Sesión no válida');
+                    if (!tutorUsername) throw new Error('invalid session');
 
                     const response = await fetch(`/api/students/${studentId}`, {
                         method: 'DELETE',
@@ -524,12 +524,12 @@
 
                     const data = await response.json();
                     
-                    if (!response.ok) throw new Error(data.message || 'Error al eliminar');
+                    if (!response.ok) throw new Error(data.message || 'Error when trying to erase student');
 
                     // Actualizar lista local
                     enrolledStudents = enrolledStudents.filter(s => s._id !== studentId);
                     renderStudentList();
-                    showStudentsMessage('success', 'Estudiante eliminado correctamente');
+                    showStudentsMessage('success', 'Student erased succesfully');
 
                 } catch (error) {
                     console.error('Delete error:', error);
@@ -541,16 +541,16 @@
             async function fetchEnrolledStudents() {
                 try {
                     const tutorUsername = sessionStorage.getItem('tutorUsername');
-                    if (!tutorUsername) throw new Error('Usuario no autenticado');
+                    if (!tutorUsername) throw new Error('User not authenticated');
 
                     const response = await fetch(`/api/tutor-students/${tutorUsername}`);
                     const data = await response.json();
                     
-                    if (!response.ok) throw new Error(data.message || 'Error al cargar estudiantes');
+                    if (!response.ok) throw new Error(data.message || 'Error when trying to charge students');
                     
                     // Validar formato de respuesta
                     if (!Array.isArray(data.students)) {
-                        throw new Error('Formato de datos inválido');
+                        throw new Error('Invalid data format');
                     }
 
                     enrolledStudents = data.students.map(s => ({
@@ -586,8 +586,8 @@
                 const tutorUsername = sessionStorage.getItem('tutorUsername');
 
                 try {
-                    if (!studentUsername) throw new Error('Ingresa un nombre de usuario');
-                    if (!tutorUsername) throw new Error('Sesión expirada');
+                    if (!studentUsername) throw new Error('Write student username');
+                    if (!tutorUsername) throw new Error('expired session');
 
                     const response = await fetch('/api/enroll', {
                         method: 'POST',
@@ -603,7 +603,7 @@
 
                     const data = await response.json();
                     
-                    if (!response.ok) throw new Error(data.message || 'Error al inscribir');
+                    if (!response.ok) throw new Error(data.message || 'Enrollment error');
 
                     // Actualizar lista
                     enrolledStudents.push({
@@ -613,7 +613,7 @@
                     
                     renderStudentList();
                     studentUsernameInput.value = '';
-                    showStudentsMessage('success', 'Estudiante añadido correctamente');
+                    showStudentsMessage('success', 'Student added succesfully');
 
                 } catch (error) {
                     console.error('Enroll error:', error);

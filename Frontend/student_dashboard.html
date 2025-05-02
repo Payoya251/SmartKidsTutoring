@@ -451,7 +451,7 @@
       //<!-- Add this script section right after the existing welcome message script -->
   // Fetch and display tutor information
   document.addEventListener('DOMContentLoaded', function() {
-    const studentUsername = localStorage.getItem('username');
+    const studentUsername = localStorage.getItem('tutorUsername');
     
     if (studentUsername) {
       fetch(`/api/get-tutor/${studentUsername}`)

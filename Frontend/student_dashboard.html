@@ -331,6 +331,11 @@
     </div>
   </div>
 
+  <div class="card">
+  <h3>Assigned Tutor</h3>
+  <p id="tutor-display">Loading tutor information...</p>
+  </div>
+
   <script>
 
     //show username in welcome message
@@ -442,7 +447,33 @@
           calendarDaysElement.appendChild(dayElement);
         }
       }
-      
+
+      //<!-- Add this script section right after the existing welcome message script -->
+  // Fetch and display tutor information
+  document.addEventListener('DOMContentLoaded', function() {
+    const studentUsername = localStorage.getItem('username');
+    
+    if (studentUsername) {
+      fetch(`/api/get-tutor/${studentUsername}`)
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
+        .then(data => {
+          const tutorDisplay = document.getElementById('tutor-display');
+          if (data.tutorUsername) {
+            tutorDisplay.textContent = `Your tutor: ${data.tutorUsername}`;
+          } else {
+            tutorDisplay.textContent = 'No tutors assigned';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching tutor:', error);
+          document.getElementById('tutor-display').textContent = 
+            'Error loading tutor information';
+        });
+    }
+  });    
       // Event listeners for month navigation
       prevMonthButton.addEventListener('click', function() {
         currentDate.setMonth(currentDate.getMonth() - 1);

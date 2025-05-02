@@ -452,46 +452,19 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // DOM Elements
+            // Elementos del DOM
             const toggleButton = document.getElementById('toggle-btn');
             const sidebar = document.getElementById('sidebar');
-            const sidebarNav = document.querySelector('.sidebar-nav');
             const enrollForm = document.getElementById('enroll-form');
             const enrollMessage = document.getElementById('enroll-message');
             const studentUsernameInput = document.getElementById('student-username');
             const studentsList = document.getElementById('students-list');
             const studentsErrors = document.getElementById('students-errors');
-            
-            // Data - Changed to array of objects
-            let enrolledStudents = [
-                { id: 1, name: "John Smith" },
-                { id: 2, name: "Jane Doe" }
-            ];
 
-            // Sidebar toggle functionality
-            if (toggleButton && sidebar) {
-                toggleButton.addEventListener('click', () => {
-                    toggleButton.classList.toggle('open');
-                    sidebar.classList.toggle('show');
-                });
+            // Datos mejorados
+            let enrolledStudents = [];
 
-                sidebarNav.querySelectorAll('a').forEach(link => {
-                    link.addEventListener('click', () => {
-                        toggleButton.classList.remove('open');
-                        sidebar.classList.remove('show');
-                    });
-                });
-            }
-
-            // Active link highlighting
-            const currentPath = window.location.pathname.split("/").pop();
-            sidebarNav.querySelectorAll("a").forEach((link) => {
-                if (link.getAttribute("href") === currentPath) {
-                    link.classList.add("active");
-                }
-            });
-
-            // Function to render student list
+            // Función para mostrar estudiantes
             function renderStudentList() {
                 studentsList.innerHTML = '';
                 
@@ -499,7 +472,7 @@
                     studentsList.innerHTML = `
                         <li>
                             <div class="empty-list-message">
-                                No tienes estudiantes inscritos todavía
+                                No hay estudiantes inscritos
                             </div>
                         </li>
                     `;
@@ -510,99 +483,150 @@
                     const listItem = document.createElement('li');
                     listItem.innerHTML = `
                         <div class="student-item">
-                            <span>${student.name}</span>
-                            <button class="remove-student" data-id="${student.id}">
+                            <span>${student.username}</span>
+                            <button class="remove-student" 
+                                data-student-id="${student._id}" 
+                                data-student-username="${student.username}">
                                 Eliminar
                             </button>
                         </div>
                     `;
                     studentsList.appendChild(listItem);
                 });
-                
-                // Add event listeners to remove buttons
+
+                // Event listeners para eliminar
                 document.querySelectorAll('.remove-student').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const studentId = parseInt(this.getAttribute('data-id'));
-                        removeStudent(studentId);
+                    button.addEventListener('click', async function() {
+                        const studentId = this.dataset.studentId;
+                        const studentUsername = this.dataset.studentUsername;
+                        await removeStudent(studentId, studentUsername);
                     });
                 });
             }
 
-            // Function to remove a student
-            function removeStudent(studentId) {
-                // In a real app, you would call your API here
-                // For now, we'll simulate it
-                console.log(`Attempting to delete student with ID: ${studentId}`);
-                
-                // Simulate API call with setTimeout
-                setTimeout(() => {
-                    enrolledStudents = enrolledStudents.filter(s => s.id !== studentId);
+            // Función mejorada para eliminar
+            async function removeStudent(studentId, studentUsername) {
+                try {
+                    const tutorUsername = sessionStorage.getItem('tutorUsername');
+                    if (!tutorUsername) throw new Error('Sesión no válida');
+
+                    const response = await fetch(`/api/students/${studentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            tutorUsername,
+                            studentUsername
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (!response.ok) throw new Error(data.message || 'Error al eliminar');
+
+                    // Actualizar lista local
+                    enrolledStudents = enrolledStudents.filter(s => s._id !== studentId);
                     renderStudentList();
-                    showStudentsSuccess('Estudiante eliminado correctamente');
-                }, 500);
-            }
+                    showStudentsMessage('success', 'Estudiante eliminado correctamente');
 
-            // Function to show error message in students section
-            function showStudentsError(message) {
-                studentsErrors.textContent = message;
-                studentsErrors.className = 'error-message';
-                studentsErrors.style.display = 'block';
-            }
-
-            // Function to show success message in students section
-            function showStudentsSuccess(message) {
-                studentsErrors.textContent = message;
-                studentsErrors.className = 'success-message';
-                studentsErrors.style.display = 'block';
-                setTimeout(() => {
-                    studentsErrors.style.display = 'none';
-                }, 3000);
-            }
-
-            // Function to fetch enrolled students
-            function fetchEnrolledStudents() {
-                // In a real app, you would call your API here
-                // For now, we'll use our mock data
-                console.log("Fetching enrolled students...");
-                renderStudentList();
-            }
-
-            // Event listener for enroll form submission
-            enrollForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const studentName = studentUsernameInput.value.trim();
-
-                // Clear previous messages
-                enrollMessage.textContent = '';
-                enrollMessage.className = '';
-
-                if (!studentName) {
-                    enrollMessage.textContent = 'Por favor ingresa un nombre de usuario';
-                    enrollMessage.className = 'error-message';
-                    return;
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    showStudentsMessage('error', error.message);
                 }
+            }
 
-                // Simulate API call with setTimeout
-                setTimeout(() => {
-                    const newStudent = {
-                        id: enrolledStudents.length > 0 
-                            ? Math.max(...enrolledStudents.map(s => s.id)) + 1 
-                            : 1,
-                        name: studentName
-                    };
+            // Función para obtener estudiantes
+            async function fetchEnrolledStudents() {
+                try {
+                    const tutorUsername = sessionStorage.getItem('tutorUsername');
+                    if (!tutorUsername) throw new Error('Usuario no autenticado');
+
+                    const response = await fetch(`/api/tutor-students/${tutorUsername}`);
+                    const data = await response.json();
                     
-                    enrolledStudents.push(newStudent);
+                    if (!response.ok) throw new Error(data.message || 'Error al cargar estudiantes');
+                    
+                    // Validar formato de respuesta
+                    if (!Array.isArray(data.students)) {
+                        throw new Error('Formato de datos inválido');
+                    }
+
+                    enrolledStudents = data.students.map(s => ({
+                        _id: s._id,
+                        username: s.username
+                    }));
+                    
                     renderStudentList();
+
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    showStudentsMessage('error', error.message);
+                }
+            }
+
+            // Función para mostrar mensajes
+            function showStudentsMessage(type, message) {
+                studentsErrors.textContent = message;
+                studentsErrors.className = `${type}-message`;
+                studentsErrors.style.display = 'block';
+                
+                if (type === 'success') {
+                    setTimeout(() => {
+                        studentsErrors.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // Evento para añadir estudiantes
+            enrollForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const studentUsername = studentUsernameInput.value.trim();
+                const tutorUsername = sessionStorage.getItem('tutorUsername');
+
+                try {
+                    if (!studentUsername) throw new Error('Ingresa un nombre de usuario');
+                    if (!tutorUsername) throw new Error('Sesión expirada');
+
+                    const response = await fetch('/api/enroll', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            tutorUsername,
+                            studentUsername
+                        })
+                    });
+
+                    const data = await response.json();
                     
-                    enrollMessage.textContent = 'Estudiante inscrito correctamente';
-                    enrollMessage.className = 'success-message';
+                    if (!response.ok) throw new Error(data.message || 'Error al inscribir');
+
+                    // Actualizar lista
+                    enrolledStudents.push({
+                        _id: data.newStudent._id,
+                        username: data.newStudent.username
+                    });
+                    
+                    renderStudentList();
                     studentUsernameInput.value = '';
-                }, 500);
+                    showStudentsMessage('success', 'Estudiante añadido correctamente');
+
+                } catch (error) {
+                    console.error('Enroll error:', error);
+                    enrollMessage.textContent = error.message;
+                    enrollMessage.className = 'error-message';
+                }
             });
 
-            // Initialize the page
+            // Inicialización
             fetchEnrolledStudents();
         });
     </script>
+</body>
+</html>
 </body>
 </html>

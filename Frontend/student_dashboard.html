@@ -248,6 +248,31 @@
       background: #3498db;
       border-radius: 50%;
     }
+
+    /* Tutor Info Styles */
+    #tutor-info p {
+      margin: 8px 0;
+      padding: 5px;
+      background-color: #f8f9fa;
+      border-radius: 5px;
+    }
+
+    #tutor-name {
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    #tutor-contact {
+      color: #3498db;
+    }
+
+    #tutor-subjects {
+      color: #27ae60;
+    }
+
+    #tutor-experience {
+      color: #8e44ad;
+    }
   </style>
 </head>
 <body>
@@ -278,11 +303,6 @@
     <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
     <h1 id="welcome-message">Welcome, User!</h1>
     <p>Student ID: SKT20458</p>
-
-
-
-
-    
 
     <div class="calendar-container">
       <div class="calendar-header">
@@ -329,24 +349,28 @@
       <p>Reading: 3/5</p>
       <div class="progress-bar"><div class="progress" style="width: 60%"></div></div>
     </div>
-  </div>
 
-  <div class="card">
-  <h3>Assigned Tutor</h3>
-  <p id="tutor-display">Loading tutor information...</p>
+    <div class="card">
+      <h3>Assigned Tutor</h3>
+      <div id="tutor-info">
+        <p id="tutor-name">Loading tutor information...</p>
+        <p id="tutor-contact"></p>
+        <p id="tutor-subjects"></p>
+        <p id="tutor-experience"></p>
+      </div>
+    </div>
   </div>
 
   <script>
-
-    //show username in welcome message
+    // Show username in welcome message
     document.addEventListener('DOMContentLoaded', function() {
-          const username = localStorage.getItem('username');
-          const welcomeMessage = document.getElementById('welcome-message');
+      const username = localStorage.getItem('username');
+      const welcomeMessage = document.getElementById('welcome-message');
 
-            if (username && welcomeMessage) {
-                welcomeMessage.textContent = `Welcome, ${username}!`;
-            }
-        });
+      if (username && welcomeMessage) {
+        welcomeMessage.textContent = `Welcome, ${username}!`;
+      }
+    });
     
     // Sidebar Toggle Functionality
     document.getElementById('toggle-btn').addEventListener('click', function() {
@@ -448,32 +472,47 @@
         }
       }
 
-      //<!-- Add this script section right after the existing welcome message script -->
-  // Fetch and display tutor information
-  document.addEventListener('DOMContentLoaded', function() {
-    const studentUsername = localStorage.getItem('tutorUsername');
-    
-    if (studentUsername) {
-      fetch(`/api/get-tutor/${studentUsername}`)
-        .then(response => {
-          if (!response.ok) throw new Error('Network response was not ok');
-          return response.json();
-        })
-        .then(data => {
-          const tutorDisplay = document.getElementById('tutor-display');
-          if (data.tutorUsername) {
-            tutorDisplay.textContent = `Your tutor: ${data.tutorUsername}`;
-          } else {
-            tutorDisplay.textContent = 'No tutors assigned';
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching tutor:', error);
-          document.getElementById('tutor-display').textContent = 
-            'Error loading tutor information';
-        });
-    }
-  });    
+      // Fetch and display tutor information
+      document.addEventListener('DOMContentLoaded', function() {
+        const studentUsername = localStorage.getItem('username');
+        const tutorNameElement = document.getElementById('tutor-name');
+        const tutorContactElement = document.getElementById('tutor-contact');
+        const tutorSubjectsElement = document.getElementById('tutor-subjects');
+        const tutorExperienceElement = document.getElementById('tutor-experience');
+
+        if (studentUsername) {
+          fetch(`/api/student-tutor/${studentUsername}`)
+            .then(response => {
+              if (!response.ok) throw new Error('Network response was not ok');
+              return response.json();
+            })
+            .then(data => {
+              if (data.error) {
+                tutorNameElement.textContent = 'No tutor assigned yet';
+                tutorContactElement.textContent = '';
+                tutorSubjectsElement.textContent = '';
+                tutorExperienceElement.textContent = '';
+                return;
+              }
+
+              // Update tutor information
+              tutorNameElement.textContent = `Tutor: ${data.tutor.name}`;
+              tutorContactElement.textContent = `Email: ${data.tutor.email}`;
+              tutorSubjectsElement.textContent = `Subjects: ${data.tutor.subjects.join(', ')}`;
+              tutorExperienceElement.textContent = `Experience: ${data.tutor.experience}`;
+            })
+            .catch(error => {
+              console.error('Error fetching tutor:', error);
+              tutorNameElement.textContent = 'Error loading tutor information';
+              tutorContactElement.textContent = '';
+              tutorSubjectsElement.textContent = '';
+              tutorExperienceElement.textContent = '';
+            });
+        } else {
+          tutorNameElement.textContent = 'Please login to view tutor information';
+        }
+      });
+      
       // Event listeners for month navigation
       prevMonthButton.addEventListener('click', function() {
         currentDate.setMonth(currentDate.getMonth() - 1);

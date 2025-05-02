@@ -452,49 +452,19 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // DOM Elements
+            // Elementos del DOM
             const toggleButton = document.getElementById('toggle-btn');
             const sidebar = document.getElementById('sidebar');
-            const sidebarNav = document.querySelector('.sidebar-nav');
             const enrollForm = document.getElementById('enroll-form');
             const enrollMessage = document.getElementById('enroll-message');
             const studentUsernameInput = document.getElementById('student-username');
             const studentsList = document.getElementById('students-list');
             const studentsErrors = document.getElementById('students-errors');
-            
-            // Data
+
+            // Datos mejorados
             let enrolledStudents = [];
 
-            // Sidebar toggle functionality
-            if (toggleButton && sidebar) {
-                toggleButton.addEventListener('click', () => {
-                    toggleButton.classList.toggle('open');
-                    sidebar.classList.toggle('show');
-                });
-
-                sidebarNav.querySelectorAll('a').forEach(link => {
-                    link.addEventListener('click', () => {
-                        toggleButton.classList.remove('open');
-                        sidebar.classList.remove('show');
-                    });
-                });
-            }
-
-            // Active link highlighting
-            const currentPath = window.location.pathname.split("/").pop();
-            sidebarNav.querySelectorAll("a").forEach((link) => {
-                if (link.getAttribute("href") === currentPath) {
-                    link.classList.add("active");
-                }
-            });
-
-            // Dark mode preference
-            const prefersDark = localStorage.getItem("darkMode") === "enabled";
-            if (prefersDark) {
-                document.body.classList.add("dark-mode");
-            }
-
-            // Function to render student list
+            // Función para mostrar estudiantes
             function renderStudentList() {
                 studentsList.innerHTML = '';
                 
@@ -502,7 +472,7 @@
                     studentsList.innerHTML = `
                         <li>
                             <div class="empty-list-message">
-                                No tienes estudiantes inscritos todavía
+                                No hay estudiantes inscritos
                             </div>
                         </li>
                     `;
@@ -513,180 +483,146 @@
                     const listItem = document.createElement('li');
                     listItem.innerHTML = `
                         <div class="student-item">
-                            <span>${student}</span>
-                            <button class="remove-student" data-student="${student}">
+                            <span>${student.username}</span>
+                            <button class="remove-student" 
+                                data-student-id="${student._id}" 
+                                data-student-username="${student.username}">
                                 Eliminar
                             </button>
                         </div>
                     `;
                     studentsList.appendChild(listItem);
                 });
-                
-                // Add event listeners to remove buttons
+
+                // Event listeners para eliminar
                 document.querySelectorAll('.remove-student').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const studentToRemove = this.getAttribute('data-student');
-                        removeStudent(studentToRemove);
+                    button.addEventListener('click', async function() {
+                        const studentId = this.dataset.studentId;
+                        const studentUsername = this.dataset.studentUsername;
+                        await removeStudent(studentId, studentUsername);
                     });
                 });
             }
 
-            // Function to remove a student
-            function removeStudent(studentUsername) {
-                const tutorUsername = sessionStorage.getItem('tutorUsername');
-                
-                // Clear previous errors
-                studentsErrors.style.display = 'none';
-                studentsErrors.textContent = '';
-                
-                if (!tutorUsername) {
-                    showStudentsError('Error: No se pudo verificar tu sesión. Por favor, recarga la página.');
-                    return;
-                }
-                
-                fetch('/api/remove-student', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        tutorUsername: tutorUsername, 
-                        studentUsername: studentUsername 
-                    }),
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.message || 'Error al eliminar el estudiante');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Update local list
-                        enrolledStudents = enrolledStudents.filter(s => s !== studentUsername);
-                        renderStudentList();
-                        showStudentsSuccess('Estudiante eliminado correctamente');
-                    } else {
-                        throw new Error(data.message || 'Error al eliminar el estudiante');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error removing student:', error);
-                    showStudentsError(error.message);
-                });
-            }
+            // Función mejorada para eliminar
+            async function removeStudent(studentId, studentUsername) {
+                try {
+                    const tutorUsername = sessionStorage.getItem('tutorUsername');
+                    if (!tutorUsername) throw new Error('Sesión no válida');
 
-            // Function to show error message in students section
-            function showStudentsError(message) {
-                studentsErrors.textContent = message;
-                studentsErrors.className = 'error-message';
-                studentsErrors.style.display = 'block';
-            }
-
-            // Function to show success message in students section
-            function showStudentsSuccess(message) {
-                studentsErrors.textContent = message;
-                studentsErrors.className = 'success-message';
-                studentsErrors.style.display = 'block';
-                setTimeout(() => {
-                    studentsErrors.style.display = 'none';
-                }, 3000);
-            }
-
-            // Function to fetch enrolled students
-            function fetchEnrolledStudents() {
-                const tutorUsername = sessionStorage.getItem('tutorUsername');
-                
-                // Clear previous errors
-                studentsErrors.style.display = 'none';
-                studentsErrors.textContent = '';
-                
-                if (!tutorUsername) {
-                    showStudentsError('Error: No se pudo verificar tu sesión. Redirigiendo...');
-                    setTimeout(() => window.location.href = 'login.html', 2000);
-                    return;
-                }
-                
-                fetch(`/api/tutor-students/${tutorUsername}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Error al cargar estudiantes');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data && Array.isArray(data.students)) {
-                            enrolledStudents = data.students;
-                            renderStudentList();
-                        } else {
-                            throw new Error('Formato de datos incorrecto');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching enrolled students:', error);
-                        showStudentsError('Error al cargar la lista de estudiantes. Intenta recargar la página.');
+                    const response = await fetch(`/api/students/${studentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            tutorUsername,
+                            studentUsername
+                        })
                     });
+
+                    const data = await response.json();
+                    
+                    if (!response.ok) throw new Error(data.message || 'Error al eliminar');
+
+                    // Actualizar lista local
+                    enrolledStudents = enrolledStudents.filter(s => s._id !== studentId);
+                    renderStudentList();
+                    showStudentsMessage('success', 'Estudiante eliminado correctamente');
+
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    showStudentsMessage('error', error.message);
+                }
             }
 
-            // Event listener for enroll form submission
-            enrollForm.addEventListener('submit', function(e) {
+            // Función para obtener estudiantes
+            async function fetchEnrolledStudents() {
+                try {
+                    const tutorUsername = sessionStorage.getItem('tutorUsername');
+                    if (!tutorUsername) throw new Error('Usuario no autenticado');
+
+                    const response = await fetch(`/api/tutor-students/${tutorUsername}`);
+                    const data = await response.json();
+                    
+                    if (!response.ok) throw new Error(data.message || 'Error al cargar estudiantes');
+                    
+                    // Validar formato de respuesta
+                    if (!Array.isArray(data.students)) {
+                        throw new Error('Formato de datos inválido');
+                    }
+
+                    enrolledStudents = data.students.map(s => ({
+                        _id: s._id,
+                        username: s.username
+                    }));
+                    
+                    renderStudentList();
+
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    showStudentsMessage('error', error.message);
+                }
+            }
+
+            // Función para mostrar mensajes
+            function showStudentsMessage(type, message) {
+                studentsErrors.textContent = message;
+                studentsErrors.className = `${type}-message`;
+                studentsErrors.style.display = 'block';
+                
+                if (type === 'success') {
+                    setTimeout(() => {
+                        studentsErrors.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // Evento para añadir estudiantes
+            enrollForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const studentUsername = studentUsernameInput.value.trim();
                 const tutorUsername = sessionStorage.getItem('tutorUsername');
 
-                // Clear previous messages
-                enrollMessage.textContent = '';
-                enrollMessage.className = '';
+                try {
+                    if (!studentUsername) throw new Error('Ingresa un nombre de usuario');
+                    if (!tutorUsername) throw new Error('Sesión expirada');
 
-                if (!studentUsername) {
-                    enrollMessage.textContent = 'Por favor ingresa un nombre de usuario';
-                    enrollMessage.className = 'error-message';
-                    return;
-                }
-
-                if (tutorUsername) {
-                    fetch('/api/enroll-student', {
+                    const response = await fetch('/api/enroll', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                         },
-                        body: JSON.stringify({ 
-                            tutorUsername: tutorUsername, 
-                            studentUsername: studentUsername 
-                        }),
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => {
-                                throw new Error(err.message || 'Error al inscribir al estudiante');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            enrollMessage.textContent = data.message || 'Estudiante inscrito correctamente';
-                            enrollMessage.className = 'success-message';
-                            enrolledStudents.push(studentUsername);
-                            renderStudentList();
-                            studentUsernameInput.value = '';
-                        } else {
-                            throw new Error(data.message || 'Error al inscribir al estudiante');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error enrolling student:', error);
-                        enrollMessage.textContent = error.message;
-                        enrollMessage.className = 'error-message';
+                        body: JSON.stringify({
+                            tutorUsername,
+                            studentUsername
+                        })
                     });
-                } else {
-                    window.location.href = 'login.html';
+
+                    const data = await response.json();
+                    
+                    if (!response.ok) throw new Error(data.message || 'Error al inscribir');
+
+                    // Actualizar lista
+                    enrolledStudents.push({
+                        _id: data.newStudent._id,
+                        username: data.newStudent.username
+                    });
+                    
+                    renderStudentList();
+                    studentUsernameInput.value = '';
+                    showStudentsMessage('success', 'Estudiante añadido correctamente');
+
+                } catch (error) {
+                    console.error('Enroll error:', error);
+                    enrollMessage.textContent = error.message;
+                    enrollMessage.className = 'error-message';
                 }
             });
 
-            // Initialize the page
+            // Inicialización
             fetchEnrolledStudents();
         });
     </script>

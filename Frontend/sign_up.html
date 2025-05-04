@@ -11,16 +11,15 @@
       font-family: 'Segoe UI', sans-serif;
       background-color: #f0fdfc;
       color: #264653;
-      padding: 40px;
+      /* REMOVE padding: 40px; */
+      margin: 0; /* Add this to reset default margins */
     }
 
+    /* Add this instead to only pad your main content */
     .container {
+      margin: 40px auto; /* Now only the container has spacing */
       max-width: 600px;
-      margin: auto;
-      background-color: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      /* ... rest of your existing container styles ... */
     }
 
     h2 {

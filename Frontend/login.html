@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - SharpKidsTutoring</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0fdfc;
+      color: #264653;
+      padding: 40px;
+    }
+    .content {
+      max-width: 400px;
+      margin: 50px auto;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+    .error-message {
+      color: #e63946;
+      margin-top: 10px;
+      display: none;
+    }
+    /* Keep all your existing styles */
+  </style>
 </head>
 <body>
   <button class="toggle-btn" id="toggle-btn">&#9776;</button>
@@ -16,12 +39,11 @@
     <nav>
       <ul>
         <li><a href="Homepage.html">Home</a></li>
-        <li><a href="login.html" class="active">Login</a></li>
         <li><a href="AboutUs.html">About Us</a></li>
+        <li><a href="login.html" class="active">Login</a></li>
         <li><a href="Appointment.html">Appointment</a></li>
         <li><a href="Blog.html">Blog</a></li>
         <li><a href="Services.html">Services</a></li>
-        <li><a href="Recruitment.html">Join as Tutor</a></li>
         <li><a href="ContactUs.html">Contact</a></li>
         <li><a href="PrivacyPolicy.html">Privacy Policy</a></li>
         <li><a href="FAQ.html">FAQ</a></li>
@@ -29,12 +51,12 @@
     </nav>
   </div>
 
-  <div>
+  <div class="content">
     <div class="page-logo">
       <img src="logo.png" alt="SharpKidsTutoring Logo">
     </div>
     <h1>Login to your account</h1>
-    <div class="feature-card">
+    <div class="card">
       <form id="loginForm">
         <label for="email">Email Address *</label>
         <input type="email" id="email" name="email" required>

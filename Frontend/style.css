@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Raleway:wght@400;500&display=swap');
 
+.container {
+  max-width: 600px;
+  margin: auto;
+  align: "center";
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
 /* RESET & BASE */
 * {
   margin: 0;
@@ -52,15 +62,6 @@ img {
 .page-logo {
   text-align: center;
   margin: 30px auto;
-}
-
-.container {
-  max-width: 600px;
-  margin: auto;
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .page-logo img {

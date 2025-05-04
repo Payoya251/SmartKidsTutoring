@@ -54,6 +54,15 @@ img {
   margin: 30px auto;
 }
 
+.container {
+  max-width: 600px;
+  margin: auto;
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
 .page-logo img {
   width: 200px;
   max-width: 90%;

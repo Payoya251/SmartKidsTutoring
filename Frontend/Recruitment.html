@@ -4,15 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Join Us | Sharp Kids Tutoring</title>
-  <style>
-    
-    input {
-      width: 100%; /* Ocupa el 100% del contenedor padre */
-      padding: 10px; /* Espacio interno */
-      box-sizing: border-box; /* Incluye padding en el ancho total */
-    }
-    
-  </style>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -25,7 +16,6 @@
     <nav>
       <ul>
         <li><a href="Homepage.html">Home</a></li>
-        <li><a href="login.html">Login</a></li>
         <li><a href="AboutUs.html">About Us</a></li>
         <li><a href="Appointment.html" class="active">Appointment</a></li>
         <li><a href="Blog.html">Blog</a></li>
@@ -38,14 +28,14 @@
     </nav>
   </div>
 
-  <div>
+  <div class="content">
     <div class="page-logo"><img src="logo.png" alt="Logo" /></div>
     <h1>Become a Volunteer Tutor ✏️</h1>
     <p class="centered-text">
       Help students succeed while gaining leadership, teaching, and communication experience. Join our Sharp Kids Tutoring team today!
     </p>
 
-    <div class="signupForm">
+    <div class="card">
       <form id="tutorApplicationForm">
         <label for="name">Full Name *</label>
         <input type="text" id="name" name="name" required>

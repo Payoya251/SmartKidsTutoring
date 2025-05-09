@@ -25,6 +25,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // Handle role-specific fields in signup form
+  const roleSelect = document.getElementById("role");
+  const studentFields = document.getElementById("student-fields");
+  
+  if (roleSelect && studentFields) {
+    // Initially show/hide based on default selection
+    updateFormFields();
+    
+    // Add event listener for when role selection changes
+    roleSelect.addEventListener("change", updateFormFields);
+    
+    function updateFormFields() {
+      if (roleSelect.value === "student") {
+        studentFields.style.display = "block";
+      } else {
+        studentFields.style.display = "none";
+      }
+    }
+  }
+
   // Smooth scroll for anchor links
   const links = document.querySelectorAll("a[href^='#']");
   links.forEach((link) => {

@@ -224,6 +224,25 @@ html, body {
   background-color: #005f6a;
 }
 
+#student-fields {
+  margin-bottom: 20px;
+}
+
+#student-fields label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+#student-fields input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
 footer {
   text-align: center;
   padding: 20px;

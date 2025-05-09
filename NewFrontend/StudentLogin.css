@@ -194,6 +194,9 @@ html, body {
     justify-content: center;
     align-items: center;
     padding: 40px 20px;
+    position: relative;
+    margin: auto;
+    max-width: 100%;
   }
   
   .login-form {
@@ -267,4 +270,3 @@ html, body {
       transform: translateY(0);
     }
   }
-  

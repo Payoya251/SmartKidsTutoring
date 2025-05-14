@@ -1,0 +1,345 @@
+/* SMART KIDS TUTORING - MAIN CSS FILE */
+
+/* Base Styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff9e6;
+  color: #333;
+}
+
+/* HEADER */
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffeb3b;
+  padding: 10px 20px;
+  height: 60px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* TOP-RIGHT NAV */
+.top-right-nav {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.top-right-nav a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #000;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.top-right-nav a:hover {
+  color: #00bfa6;
+}
+
+/* HAMBURGER */
+.hamburger {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  cursor: pointer;
+  z-index: 1001;
+  width: 30px;
+  height: 24px;
+}
+
+.hamburger span {
+  display: block;
+  height: 3px;
+  background: #000;
+  margin: 5px 0;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 240px;
+  background-color: #fff;
+  padding-top: 80px;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 998;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.show {
+  transform: translateX(0);
+}
+
+.sidebar a {
+  padding: 15px 20px;
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: background 0.3s ease, color 0.3s ease;
+  border-radius: 6px;
+  margin: 5px 10px;
+}
+
+.sidebar a i {
+  margin-right: 10px;
+  color: #007b83;
+  font-size: 1rem;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background-color: #d0f4ea;
+  color: #007b83;
+}
+
+/* Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #007b83;
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background-color: #f5f5f5;
+}
+
+/* HERO SECTION - Common Styles */
+.hero {
+  padding-top: 100px;
+  text-align: center;
+  background-color: #fffde7;
+  padding-bottom: 40px;
+}
+
+.hero-logo {
+  width: 140px;
+  margin-bottom: 20px;
+}
+
+.hero-heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 10px 0;
+  animation: fadeInUp 1s ease-out;
+}
+
+.hero-subtext {
+  font-size: 1.2rem;
+  color: #333;
+  animation: fadeInUp 1.4s ease-out;
+}
+
+/* Wave effect for hero sections */
+.hero.wave-effect {
+  padding-bottom: 60px;
+  position: relative;
+}
+
+.hero.wave-effect::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: url('https://svgshare.com/i/u6R.svg') repeat-x;
+  background-size: cover;
+}
+
+/* BUTTONS */
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+  animation: fadeInUp 1.8s ease-out;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.btn.primary {
+  background-color: #fdd835;
+  color: black;
+}
+
+.btn.primary:hover {
+  background-color: #fbc02d;
+}
+
+.btn.secondary {
+  background-color: transparent;
+  border: 2px solid black;
+  color: black;
+}
+
+.btn.secondary:hover {
+  background-color: black;
+  color: #fffde7;
+}
+
+/* CARD STYLES - Common */
+.card {
+  background-color: white;
+  border: 2px solid #fdd835;
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card i {
+  color: #007b83;
+  margin-bottom: 15px;
+}
+
+.card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9rem;
+  background-color: #fffde7;
+  margin-top: 40px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* UTILITY CLASSES */
+.text-center {
+  text-align: center;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.p-20 {
+  padding: 20px;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .hero-heading {
+    font-size: 2rem;
+  }
+  
+  .hero-subtext {
+    font-size: 1rem;
+  }
+  
+  .top-right-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-heading {
+    font-size: 1.6rem;
+  }
+  
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+  }
+}

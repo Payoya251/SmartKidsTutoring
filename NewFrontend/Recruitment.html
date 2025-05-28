@@ -44,27 +44,166 @@
     <p class="hero-subtext">Help us empower the next generation through learning.</p>
   </section>
 
-  <section class="recruitment-section">
+    <section class="recruitment-section">
     <h2>Become a Volunteer Tutor</h2>
     <p>We're always looking for enthusiastic volunteers to join our mission. Whether you're a student or a professional, your time can make a real impact!</p>
 
     <form class="recruitment-form">
-      <label for="name">Full Name:</label>
-      <input type="text" id="name" name="name" required />
+      <div class="form-group">
+        <label for="name">Full Name:</label>
+        <p class="field-subtitle">Please provide your full legal name as it appears on official documents.</p>
+        <input type="text" id="name" name="name" required />
+      </div>
 
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required />
+      <div class="form-group">
+        <label for="email">Email Address:</label>
+        <p class="field-subtitle">We'll use this email to contact you about your application and tutoring opportunities.</p>
+        <input type="email" id="email" name="email" required />
+      </div>
 
-      <label for="education">Highest Education Earned:</label>
-      <input type="text" id="education" name="education" placeholder="e.g. Bachelor's in Mathematics, High School Diploma" required />
+      <div class="form-group">
+        <label for="phone">Phone Number:</label>
+        <p class="field-subtitle">Optional backup contact method for urgent communications.</p>
+        <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" />
+      </div>
 
-      <label for="subject">Subjects You'd Like to Tutor:</label>
-      <input type="text" id="subject" name="subject" required />
+      <div class="form-group">
+        <label for="age">Age:</label>
+        <p class="field-subtitle">We welcome tutors of all ages. Must be 16+ to volunteer independently.</p>
+        <input type="number" id="age" name="age" min="16" max="100" required />
+      </div>
 
-      <label for="message">Why do you want to join us?</label>
-      <textarea id="message" name="message" rows="4" required></textarea>
+      <div class="form-group">
+        <label for="education">Highest Education Level:</label>
+        <p class="field-subtitle">Your educational background helps us match you with appropriate students.</p>
+        <select id="education" name="education" required>
+          <option value="">Select your education level</option>
+          <option value="high-school">High School Diploma/GED</option>
+          <option value="some-college">Some College</option>
+          <option value="associates">Associate's Degree</option>
+          <option value="bachelors">Bachelor's Degree</option>
+          <option value="masters">Master's Degree</option>
+          <option value="doctorate">Doctorate/PhD</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
 
-      <button type="submit">Submit Application</button>
+      <div class="form-group">
+        <label for="field-of-study">Field of Study/Major:</label>
+        <p class="field-subtitle">What did you study? This helps us understand your expertise areas.</p>
+        <input type="text" id="field-of-study" name="field-of-study" placeholder="e.g. Mathematics, Biology, English Literature" />
+      </div>
+
+      <div class="form-group">
+        <label for="subjects">Subjects You'd Like to Tutor:</label>
+        <p class="field-subtitle">Select all subjects you feel comfortable teaching (hold Ctrl/Cmd for multiple).</p>
+        <select id="subjects" name="subjects" multiple required>
+          <option value="math-elementary">Elementary Math</option>
+          <option value="math-middle">Middle School Math</option>
+          <option value="algebra">Algebra I & II</option>
+          <option value="geometry">Geometry</option>
+          <option value="precalculus">Pre-Calculus</option>
+          <option value="calculus">Calculus</option>
+          <option value="statistics">Statistics</option>
+          <option value="english-elementary">Elementary English</option>
+          <option value="english-middle">Middle School English</option>
+          <option value="english-high">High School English</option>
+          <option value="reading">Reading Comprehension</option>
+          <option value="writing">Creative & Essay Writing</option>
+          <option value="science-elementary">Elementary Science</option>
+          <option value="biology">Biology</option>
+          <option value="chemistry">Chemistry</option>
+          <option value="physics">Physics</option>
+          <option value="earth-science">Earth Science</option>
+          <option value="history">History</option>
+          <option value="social-studies">Social Studies</option>
+          <option value="spanish">Spanish</option>
+          <option value="french">French</option>
+          <option value="other-language">Other Languages</option>
+          <option value="test-prep">Standardized Test Prep</option>
+          <option value="homework-help">General Homework Help</option>
+        </select>
+      </div>
+
+            <div class="form-group">
+        <label for="grade-levels">Preferred Grade Levels:</label>
+        <p class="field-subtitle">Which grade levels do you feel most comfortable working with?</p>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="grade-levels" value="k-2">K-2nd Grade</label>
+          <label><input type="checkbox" name="grade-levels" value="3-5">3rd-5th Grade</label>
+          <label><input type="checkbox" name="grade-levels" value="6-8">6th-8th Grade (Middle School)</label>
+          <label><input type="checkbox" name="grade-levels" value="9-12">9th-12th Grade (High School)</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="experience">Teaching/Tutoring Experience:</label>
+        <p class="field-subtitle">Describe any previous experience working with students (formal or informal).</p>
+        <textarea id="experience" name="experience" rows="3" placeholder="e.g. Tutored siblings, volunteer teaching, professional teaching experience, etc."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="availability">Availability:</label>
+        <p class="field-subtitle">When are you typically available to tutor? (Check all that apply)</p>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="availability" value="weekday-morning">Weekday Mornings</label>
+          <label><input type="checkbox" name="availability" value="weekday-afternoon">Weekday Afternoons</label>
+          <label><input type="checkbox" name="availability" value="weekday-evening">Weekday Evenings</label>
+          <label><input type="checkbox" name="availability" value="saturday">Saturdays</label>
+          <label><input type="checkbox" name="availability" value="sunday">Sundays</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="hours-per-week">Hours Per Week:</label>
+        <p class="field-subtitle">How many hours per week can you commit to tutoring?</p>
+        <select id="hours-per-week" name="hours-per-week" required>
+          <option value="">Select hours per week</option>
+          <option value="1-2">1-2 hours</option>
+          <option value="3-5">3-5 hours</option>
+          <option value="6-10">6-10 hours</option>
+          <option value="11-15">11-15 hours</option>
+          <option value="16+">16+ hours</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tutoring-format">Preferred Tutoring Format:</label>
+        <p class="field-subtitle">How would you prefer to conduct tutoring sessions?</p>
+        <div class="radio-group">
+          <label><input type="radio" name="tutoring-format" value="online" required>Online Only</label>
+          <label><input type="radio" name="tutoring-format" value="in-person" required>In-Person Only</label>
+          <label><input type="radio" name="tutoring-format" value="both" required>Both Online and In-Person</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="motivation">Why do you want to join us?</label>
+        <p class="field-subtitle">Tell us what motivates you to become a volunteer tutor with Sharp Kids Tutoring.</p>
+        <textarea id="motivation" name="motivation" rows="4" required placeholder="Share your passion for education and helping students succeed..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="special-skills">Special Skills or Certifications:</label>
+        <p class="field-subtitle">Any additional qualifications, certifications, or unique skills you'd like to share?</p>
+        <textarea id="special-skills" name="special-skills" rows="3" placeholder="e.g. Teaching certification, bilingual abilities, special needs experience, etc."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="background-check">Background Check Consent:</label>
+        <p class="field-subtitle">For the safety of our students, all tutors must consent to a background check.</p>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="background-check" value="consent" required>I consent to a background check if selected as a tutor</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="references">References:</label>
+        <p class="field-subtitle">Please provide contact information for two references (teachers, employers, etc.).</p>
+        <textarea id="references" name="references" rows="4" placeholder="Reference 1: Name, Relationship, Phone/Email&#10;Reference 2: Name, Relationship, Phone/Email" required></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit Application</button>
     </form>
   </section>
 

@@ -265,3 +265,286 @@ footer {
     transform: translateY(0);
   }
 }
+
+/* RECRUITMENT - Page Specific Styles */
+
+/* Recruitment Section */
+.recruitment-section {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 40px 20px;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.recruitment-section h2 {
+  color: #007b83;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.recruitment-section > p {
+  text-align: center;
+  color: #555;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+/* Form Styling */
+.recruitment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #007b83;
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+}
+
+.field-subtitle {
+  font-size: 0.7rem;
+  color: #777;
+  margin-bottom: 8px;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  transition: border-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007b83;
+  box-shadow: 0 0 0 3px rgba(0, 123, 131, 0.1);
+}
+
+.form-group select[multiple] {
+  min-height: 120px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Custom Checkbox and Radio Groups */
+.checkbox-group,
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.checkbox-group label,
+.radio-group label {
+  display: flex;
+  align-items: center;
+  font-weight: 400;
+  font-size: 1rem;
+  color: #333;
+  cursor: pointer;
+  position: relative;
+  padding-left: 35px;
+  transition: color 0.3s ease;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.checkbox-group label:hover,
+.radio-group label:hover {
+  color: #007b83;
+}
+
+/* Hide default checkboxes and radio buttons */
+.checkbox-group input[type="checkbox"],
+.radio-group input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Custom Checkbox Styling */
+.checkbox-group label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.checkbox-group input[type="checkbox"]:checked + label::before,
+.checkbox-group label:has(input[type="checkbox"]:checked)::before {
+  background-color: #007b83;
+  border-color: #007b83;
+}
+
+.checkbox-group label::after {
+  content: '✓';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.checkbox-group input[type="checkbox"]:checked + label::after,
+.checkbox-group label:has(input[type="checkbox"]:checked)::after {
+  opacity: 1;
+}
+
+/* Custom Radio Button Styling */
+.radio-group label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.radio-group input[type="radio"]:checked + label::before,
+.radio-group label:has(input[type="radio"]:checked)::before {
+  border-color: #007b83;
+}
+
+.radio-group label::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #007b83;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.radio-group input[type="radio"]:checked + label::after,
+.radio-group label:has(input[type="radio"]:checked)::after {
+  opacity: 1;
+}
+
+/* Submit Button */
+.submit-btn {
+  background: linear-gradient(135deg, #007b83, #00bfa6);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  box-shadow: 0 4px 15px rgba(0, 123, 131, 0.3);
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 131, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .recruitment-section {
+    margin: 20px 10px;
+    padding: 30px 15px;
+  }
+  
+  .checkbox-group,
+  .radio-group {
+    gap: 10px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 0.95rem;
+  }
+    .field-subtitle {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .recruitment-section h2 {
+    font-size: 1.6rem;
+  }
+  
+  .submit-btn {
+    width: 100%;
+  }
+  
+  .checkbox-group label,
+  .radio-group label {
+    font-size: 0.9rem;
+    padding-left: 30px;
+  }
+  
+  .checkbox-group label::before,
+  .radio-group label::before {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .checkbox-group label::after {
+    left: 3px;
+    font-size: 12px;
+  }
+  
+  .radio-group label::after {
+    left: 5px;
+    width: 6px;
+    height: 6px;
+  }
+}

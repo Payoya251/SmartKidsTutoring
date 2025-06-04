@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutor Dashboard | Sharp Kids Tutoring</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Raleway:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * {
@@ -381,6 +382,148 @@
             background-color: #d4edda;
             border-left: 4px solid #28a745;
         }
+
+        /* Office Hours Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .days-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .days-checkboxes label {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .days-checkboxes input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        input[type="time"],
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #office-hours-list {
+            margin-top: 10px;
+        }
+
+        .office-hour-day {
+            margin-bottom: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .office-hour-day h4 {
+            margin: 0;
+            padding: 12px 16px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .office-hour-times {
+            padding: 8px 16px 12px;
+        }
+
+        .office-hour-timeslot {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .time-slot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .time-range {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .time-slot-days {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 15px 20px;
+        }
+        
+        .day-pill {
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .remove-hour-btn {
+            background: #fff;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 0.9em;
+            padding: 5px 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .remove-hour-btn:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+
+
+        .office-hour-item + .office-hour-item {
+            margin-top: 6px;
+        }
+
+        @media (min-width: 768px) {
+            .office-hour-day {
+                margin-bottom: 24px;
+            }
+            
+            .office-hour-times {
+                padding: 12px 20px 16px;
+            }
+            
+            .office-hour-item {
+                padding: 12px 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -403,6 +546,9 @@
     </div>
 
     <div class="content">
+        <div class="user-info" style="display: none;">
+            <p id="tutor-username"></p>
+        </div>
         <h1>Welcome to your Tutor Dashboard!</h1>
         <p class="centered-text">Here's an overview of your tutoring activity.</p>
 
@@ -442,24 +588,350 @@
         </div>
 
         <div class="card">
-            <h3>Your Progress</h3>
-            <p>Overall Performance: Good</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: 80%;"></div>
-            </div>
-            <p>Student Engagement: High</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: 90%;"></div>
+            <h3>Office Hours</h3>
+            <form id="office-hours-form">
+                <div class="form-group">
+                    <label>Days Available:</label>
+                    <div class="days-checkboxes">
+                        <label><input type="checkbox" name="days" value="monday"> Monday</label>
+                        <label><input type="checkbox" name="days" value="tuesday"> Tuesday</label>
+                        <label><input type="checkbox" name="days" value="wednesday"> Wednesday</label>
+                        <label><input type="checkbox" name="days" value="thursday"> Thursday</label>
+                        <label><input type="checkbox" name="days" value="friday"> Friday</label>
+                        <label><input type="checkbox" name="days" value="saturday"> Saturday</label>
+                        <label><input type="checkbox" name="days" value="sunday"> Sunday</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Start Time:</label>
+                    <input type="time" id="start-time" name="start-time" required>
+                </div>
+                <div class="form-group">
+                    <label>End Time:</label>
+                    <input type="time" id="end-time" name="end-time" required>
+                </div>
+                <div class="form-group">
+                    <label>Time Zone:</label>
+                    <select id="timezone" name="timezone" required>
+                        <option value="">Select Time Zone</option>
+                        <option value="ET">Eastern Time (ET)</option>
+                        <option value="CT">Central Time (CT)</option>
+                        <option value="MT">Mountain Time (MT)</option>
+                        <option value="PT">Pacific Time (PT)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn primary">Save Office Hours</button>
+                <p id="office-hours-message" class="message" style="margin-top: 10px; display: none;"></p>
+            </form>
+            
+            <div id="current-office-hours" style="margin-top: 20px;">
+                <h4>Current Office Hours:</h4>
+                <div id="office-hours-list">
+                    <!-- Office hours will be displayed here -->
+                    <p>No office hours set yet.</p>
+                </div>
             </div>
         </div>
+
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    // Global variables
+    let officeHours = [];
+    
+    // Track office hours state
+    let officeHoursInitialized = false;
+    let officeHoursLoading = false;
+    
+    // Initialize office hours when the script loads
+    async function initializeOfficeHours() {
+        // Prevent multiple simultaneous initializations
+        if (officeHoursInitialized || officeHoursLoading) {
+            console.log('Office hours initialization already in progress or completed');
+            return;
+        }
+        
+        officeHoursLoading = true;
+        
+        try {
+            const tutorUsername = sessionStorage.getItem('tutorUsername') || localStorage.getItem('tutorUsername');
+            if (!tutorUsername) {
+                console.log('No tutor username found during initialization');
+                return;
+            }
+            
+            console.log('Initializing office hours for tutor:', tutorUsername);
+            const fetchedHours = await fetchOfficeHours();
+            
+            // Ensure we have a valid array before updating
+            if (Array.isArray(fetchedHours)) {
+                officeHours = fetchedHours;
+                renderOfficeHours();
+                officeHoursInitialized = true;
+                console.log('Office hours initialized successfully');
+            } else {
+                console.error('Invalid office hours data received:', fetchedHours);
+                showOfficeHoursMessage('Error loading office hours. Please refresh the page.', true);
+            }
+        } catch (error) {
+            console.error('Error initializing office hours:', error);
+            showOfficeHoursMessage('Failed to load office hours. Please refresh the page.', true);
+        } finally {
+            officeHoursLoading = false;
+        }
+    }
+    
+    // Start the initialization when the script loads
+    initializeOfficeHours();
+    
+    // Function to show office hours message
+    function showOfficeHoursMessage(message, isError = false) {
+        const officeHoursMessage = document.getElementById('office-hours-message');
+        if (officeHoursMessage) {
+            officeHoursMessage.textContent = message;
+            officeHoursMessage.className = isError ? 'error-message' : 'success-message';
+            officeHoursMessage.style.display = 'block';
+            
+            // Hide the message after 5 seconds
+            setTimeout(() => {
+                officeHoursMessage.style.display = 'none';
+            }, 5000);
+        }
+    }
+    
+    // Function to fetch office hours
+    async function fetchOfficeHours() {
+        const tutorUsername = sessionStorage.getItem('tutorUsername') || localStorage.getItem('tutorUsername');
+        console.log('Fetching office hours for tutor:', tutorUsername);
+        
+        if (!tutorUsername) {
+            console.error('No tutor username found in session or local storage');
+            showOfficeHoursMessage('Please log in to access office hours', true);
+            return [];
+        }
+        
+        try {
+            const response = await fetch(`/api/get-office-hours?tutorUsername=${encodeURIComponent(tutorUsername)}`);
+            console.log('Office hours response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data || typeof data !== 'object') {
+                throw new Error('Invalid response format');
+            }
+            
+            console.log('Successfully fetched office hours:', data.officeHours);
+            return Array.isArray(data.officeHours) ? data.officeHours : [];
+            
+        } catch (error) {
+            console.error('Error fetching office hours:', error);
+            showOfficeHoursMessage('Error loading office hours. Please try again.', true);
+            return [];
+        }
+    }
+    
+    // Function to render office hours
+    function renderOfficeHours() {
+        console.log('Rendering office hours:', officeHours);
+        const officeHoursList = document.getElementById('office-hours-list');
+        
+        if (!officeHoursList) {
+            console.error('Office hours list element not found');
+            return;
+        }
+        
+        // Clear the list first
+        officeHoursList.innerHTML = '';
+        
+        // Ensure officeHours is always an array
+        if (!Array.isArray(officeHours)) {
+            console.warn('officeHours is not an array, resetting to empty array');
+            officeHours = [];
+        }
+        
+        // If no office hours, show message and return
+        if (officeHours.length === 0) {
+            officeHoursList.innerHTML = '<p>No office hours set yet.</p>';
+            return;
+        }
+        
+        // Create a map to store unique office hours by time slot and days
+        const officeHoursMap = new Map();
+        
+        // Process each office hour entry
+        officeHours.forEach(hour => {
+            if (!hour) return; // Skip null/undefined entries
+            
+            // Create a unique key based on time slot and days
+            const daysKey = Array.isArray(hour.days) 
+                ? [...hour.days].sort().join(',') 
+                : '';
+                
+            const timeSlotKey = `${hour.startTime}-${hour.endTime}-${hour.timezone}-${daysKey}`;
+            
+            // Only add if we haven't seen this exact time slot and days combination
+            if (!officeHoursMap.has(timeSlotKey)) {
+                officeHoursMap.set(timeSlotKey, {
+                    ...hour,
+                    // Ensure days is always an array
+                    days: Array.isArray(hour.days) ? [...hour.days] : []
+                });
+            }
+        });
+        
+        // Convert map values back to array and update officeHours
+        const uniqueOfficeHours = Array.from(officeHoursMap.values());
+        officeHours = uniqueOfficeHours;
+        
+        console.log('Rendering', uniqueOfficeHours.length, 'unique office hours');
+        
+        if (officeHours.length === 0) {
+            console.log('No office hours to display after deduplication');
+            officeHoursList.innerHTML = '<p>No office hours set yet.</p>';
+            return;
+        }
+        
+        officeHoursList.innerHTML = '';
+        
+        // Process each office hours entry (each entry can have multiple days)
+        officeHours.forEach((officeHour, index) => {
+            console.log(`Processing office hour ${index + 1}:`, officeHour);
+            
+            const dayNames = {
+                'monday': 'Monday',
+                'tuesday': 'Tuesday',
+                'wednesday': 'Wednesday',
+                'thursday': 'Thursday',
+                'friday': 'Friday',
+                'saturday': 'Saturday',
+                'sunday': 'Sunday'
+            };
+            
+            // Sort days in order
+            const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            // Ensure days is an array before spreading
+            const daysArray = Array.isArray(officeHour.days) ? officeHour.days : [];
+            const sortedDays = [...daysArray].sort((a, b) => 
+                dayOrder.indexOf(a) - dayOrder.indexOf(b)
+            );
+            
+            // Create a section for this time slot
+            const timeSlotSection = document.createElement('div');
+            timeSlotSection.className = 'office-hour-timeslot';
+            
+            // Add the time range header
+            const timeHeader = document.createElement('div');
+            timeHeader.className = 'time-slot-header';
+            timeHeader.innerHTML = `
+                <span class="time-range">${officeHour.startTime} - ${officeHour.endTime} ${officeHour.timezone}</span>
+                <button class="remove-hour-btn" data-id="${officeHour._id}">
+                    <i class="fas fa-times"></i> Remove
+                </button>
+            `;
+            timeSlotSection.appendChild(timeHeader);
+            
+            // Add days for this time slot
+            const daysContainer = document.createElement('div');
+            daysContainer.className = 'time-slot-days';
+            
+            sortedDays.forEach(day => {
+                const dayName = dayNames[day] || day;
+                const dayPill = document.createElement('span');
+                dayPill.className = 'day-pill';
+                dayPill.textContent = dayName;
+                daysContainer.appendChild(dayPill);
+            });
+            
+            timeSlotSection.appendChild(daysContainer);
+            officeHoursList.appendChild(timeSlotSection);
+        });
+        
+        // Add event listeners to all remove buttons
+        document.querySelectorAll('.remove-hour-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.getAttribute('data-id');
+                removeOfficeHour(id);
+            });
+        });
+    }
+    
+    // Function to remove office hour
+    async function removeOfficeHour(id) {
+        if (!id) {
+            console.error('No ID provided for office hour removal');
+            showOfficeHoursMessage('Error: Missing office hour ID', true);
+            return;
+        }
+        
+        const tutorUsername = sessionStorage.getItem('tutorUsername') || localStorage.getItem('tutorUsername');
+        if (!tutorUsername) {
+            console.error('No tutor username found for office hour removal');
+            showOfficeHoursMessage('Please log in to manage office hours', true);
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/remove-office-hour', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: id,
+                    tutorUsername: tutorUsername
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                // Refresh the office hours list
+                officeHours = await fetchOfficeHours();
+                renderOfficeHours();
+                showOfficeHoursMessage('Office hour removed successfully');
+            } else {
+                throw new Error(data.message || 'Failed to remove office hour');
+            }
+        } catch (error) {
+            console.error('Error removing office hour:', error);
+            showOfficeHoursMessage(error.message || 'Failed to remove office hour', true);
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', async function () {
         // DOM Elements
         const toggleButton = document.getElementById('toggle-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarNav = document.querySelector('.sidebar-nav');
+        
+        // Set the tutor's username from the URL or session storage
+        const urlParams = new URLSearchParams(window.location.search);
+        let tutorUsername = urlParams.get('username') || sessionStorage.getItem('tutorUsername');
+        
+        if (tutorUsername) {
+            // Update the hidden field and session storage
+            const tutorUsernameElement = document.getElementById('tutor-username');
+            if (tutorUsernameElement) {
+                tutorUsernameElement.textContent = tutorUsername;
+            }
+            sessionStorage.setItem('tutorUsername', tutorUsername);
+            console.log('Tutor username set:', tutorUsername);
+        } else {
+            console.error('No tutor username found in URL or session storage');
+            // Redirect to login or show an error message
+            showOfficeHoursMessage('Please log in to access the tutor dashboard', true);
+        }
+        
+        // Ensure office hours are loaded
+        if (!officeHoursInitialized && !officeHoursLoading) {
+            console.log('Ensuring office hours are loaded');
+            await initializeOfficeHours();
+        }
         const enrollForm = document.getElementById('enroll-form');
         const enrollMessage = document.getElementById('enroll-message');
         const studentUsernameInput = document.getElementById('student-username');
@@ -658,6 +1130,298 @@
                 });
         }
 
+        // DOM Elements for Office Hours
+        const officeHoursForm = document.getElementById('office-hours-form');
+        const officeHoursList = document.getElementById('office-hours-list');
+        
+        // Office hours form submission
+        if (officeHoursForm) {
+            // Remove any existing event listeners to prevent duplicates
+            const newForm = officeHoursForm.cloneNode(true);
+            officeHoursForm.parentNode.replaceChild(newForm, officeHoursForm);
+            
+            newForm.addEventListener('submit', async function handleOfficeHoursSubmit(e) {
+                e.preventDefault();
+                
+                // Disable the form while processing
+                const submitButton = newForm.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = 'Saving...';
+                
+                try {
+                    const formData = new FormData(newForm);
+                    const days = [];
+                    
+                    // Get selected days
+                    document.querySelectorAll('input[name="days"]:checked').forEach(checkbox => {
+                        days.push(checkbox.value);
+                    });
+                    
+                    if (days.length === 0) {
+                        showOfficeHoursMessage('Please select at least one day', true);
+                        return;
+                    }
+                    
+                    const officeHourData = {
+                        days: days,
+                        startTime: formData.get('start-time'),
+                        endTime: formData.get('end-time'),
+                        timezone: formData.get('timezone')
+                    };
+                    
+                    console.log('Saving office hours:', officeHourData);
+                    await saveOfficeHours(officeHourData);
+                    
+                    // Refresh the office hours list
+                    const updatedHours = await fetchOfficeHours();
+                    if (Array.isArray(updatedHours)) {
+                        officeHours = updatedHours;
+                        renderOfficeHours();
+                        newForm.reset();
+                        showOfficeHoursMessage('Office hours saved successfully!');
+                    } else {
+                        throw new Error('Invalid response when fetching updated office hours');
+                    }
+                } catch (error) {
+                    console.error('Error saving office hours:', error);
+                    showOfficeHoursMessage(error.message || 'Failed to save office hours', true);
+                } finally {
+                    // Re-enable the form
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                }
+            });
+        }
+        
+        // Function to render office hours
+        function renderOfficeHours() {
+            console.log('Rendering office hours:', officeHours);
+            
+            if (!officeHours || officeHours.length === 0) {
+                console.log('No office hours to display');
+                officeHoursList.innerHTML = '<p>No office hours set yet.</p>';
+                return;
+            }
+            
+            officeHoursList.innerHTML = '';
+            
+            // Process each office hours entry (each entry can have multiple days)
+            officeHours.forEach((officeHour, index) => {
+                console.log(`Processing office hour ${index + 1}:`, officeHour);
+                const dayNames = {
+                    'monday': 'Monday',
+                    'tuesday': 'Tuesday',
+                    'wednesday': 'Wednesday',
+                    'thursday': 'Thursday',
+                    'friday': 'Friday',
+                    'saturday': 'Saturday',
+                    'sunday': 'Sunday'
+                };
+                
+                // Sort days in order
+                const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                // Ensure days is an array before spreading
+                const daysArray = Array.isArray(officeHour.days) ? officeHour.days : [];
+                const sortedDays = [...daysArray].sort((a, b) => 
+                    dayOrder.indexOf(a) - dayOrder.indexOf(b)
+                );
+                
+                // Create a section for this time slot
+                const timeSlotSection = document.createElement('div');
+                timeSlotSection.className = 'office-hour-timeslot';
+                
+                // Add the time range header
+                const timeHeader = document.createElement('div');
+                timeHeader.className = 'time-slot-header';
+                timeHeader.innerHTML = `
+                    <span class="time-range">${officeHour.startTime} - ${officeHour.endTime} ${officeHour.timezone}</span>
+                    <button class="remove-hour-btn" data-id="${officeHour._id}">
+                        <i class="fas fa-times"></i> Remove
+                    </button>
+                `;
+                timeSlotSection.appendChild(timeHeader);
+                
+                // Add days for this time slot
+                const daysContainer = document.createElement('div');
+                daysContainer.className = 'time-slot-days';
+                
+                sortedDays.forEach(day => {
+                    const dayName = dayNames[day] || day;
+                    const dayPill = document.createElement('span');
+                    dayPill.className = 'day-pill';
+                    dayPill.textContent = dayName;
+                    daysContainer.appendChild(dayPill);
+                });
+                
+                timeSlotSection.appendChild(daysContainer);
+                officeHoursList.appendChild(timeSlotSection);
+            });
+            
+            // Add event listeners to all remove buttons
+            document.querySelectorAll('.remove-hour-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    removeOfficeHour(id);
+                });
+            });
+        }
+        
+        // Function to save office hours
+        async function saveOfficeHours(officeHoursData) {
+            const tutorUsername = sessionStorage.getItem('tutorUsername');
+            if (!tutorUsername) return false;
+            
+            try {
+                const response = await fetch('/api/save-office-hours', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        tutorUsername,
+                        ...officeHoursData
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to save office hours');
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Error saving office hours:', error);
+                throw error;
+            }
+        }
+        
+        // Function to fetch office hours
+        async function fetchOfficeHours() {
+            const tutorUsername = sessionStorage.getItem('tutorUsername');
+            console.log('Fetching office hours for tutor:', tutorUsername);
+            
+            if (!tutorUsername) {
+                console.error('No tutor username found in session storage');
+                return [];
+            }
+            
+            try {
+                const response = await fetch(`/api/get-office-hours?tutorUsername=${encodeURIComponent(tutorUsername)}`);
+                console.log('Office hours response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Office hours response data:', data);
+                
+                if (response.ok && data.success) {
+                    console.log('Successfully fetched office hours:', data.officeHours);
+                    return data.officeHours || [];
+                }
+                
+                console.error('Failed to fetch office hours:', data.message || 'Unknown error');
+                return [];
+            } catch (error) {
+                console.error('Error fetching office hours:', error);
+                return [];
+            }
+        }
+        
+        // Function to remove office hour
+        window.removeOfficeHour = async function(id) {
+            if (!confirm('Are you sure you want to remove these office hours?')) return;
+            
+            try {
+                const tutorUsername = sessionStorage.getItem('tutorUsername');
+                if (!tutorUsername) {
+                    throw new Error('Not logged in');
+                }
+                
+                const response = await fetch('/api/remove-office-hour', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id,
+                        tutorUsername
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Refresh the office hours list from the server
+                    officeHours = await fetchOfficeHours();
+                    renderOfficeHours();
+                    showOfficeHoursMessage('Office hours removed successfully');
+                } else {
+                    throw new Error(data.message || 'Failed to remove office hours');
+                }
+            } catch (error) {
+                console.error('Error removing office hour:', error);
+                showOfficeHoursMessage(error.message || 'Failed to remove office hours', true);
+            }
+        }
+        
+        // Event listener for office hours form submission
+        officeHoursForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(officeHoursForm);
+            const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
+            const startTime = formData.get('start-time');
+            const endTime = formData.get('end-time');
+            const timezone = formData.get('timezone');
+            
+            if (days.length === 0) {
+                showOfficeHoursMessage('Please select at least one day', true);
+                return;
+            }
+            
+            if (!startTime || !endTime || !timezone) {
+                showOfficeHoursMessage('Please fill in all required fields', true);
+                return;
+            }
+            
+            // Validate time range
+            if (startTime >= endTime) {
+                showOfficeHoursMessage('End time must be after start time', true);
+                return;
+            }
+            
+            try {
+                // Create office hours for each selected day
+                const officeHoursData = {
+                    days,
+                    startTime,
+                    endTime,
+                    timezone
+                };
+                
+                const result = await saveOfficeHours(officeHoursData);
+                
+                if (result && result.officeHours) {
+                    // Refresh the office hours list from the server
+                    officeHours = await fetchOfficeHours();
+                    renderOfficeHours();
+                    
+                    // Reset the form
+                    officeHoursForm.reset();
+                    
+                    showOfficeHoursMessage('Office hours saved successfully!');
+                } else {
+                    throw new Error('Failed to save office hours');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showOfficeHoursMessage(error.message || 'Failed to save office hours', true);
+            }
+        });
+        
+        // Office hours loading is now handled in the main DOMContentLoaded listener
+        
         // Event listener for enroll form submission
         enrollForm.addEventListener('submit', function(e) {
             e.preventDefault();

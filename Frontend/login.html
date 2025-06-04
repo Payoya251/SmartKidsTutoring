@@ -99,11 +99,21 @@
                     localStorage.setItem('userType', result.userType);
 
                     if (result.userType === 'tutor') {
-                        sessionStorage.setItem('tutorUsername', result.username); // Store tutor username in sessionStorage
+                        // Store tutor username in both sessionStorage and localStorage for consistency
+                        sessionStorage.setItem('tutorUsername', result.username);
+                        localStorage.setItem('tutorUsername', result.username);
+                        
+                        // Use the redirect URL from the server if provided
+                        if (result.redirect) {
+                            window.location.href = result.redirect;
+                            return;
+                        }
+                        // Fallback to tutor dashboard
+                        window.location.href = '/tutor-dashboard';
                     } else if (result.userType === 'student') {
-                        sessionStorage.setItem('studentUsername', result.username); // Store student username in sessionStorage if needed
+                        sessionStorage.setItem('studentUsername', result.username);
+                        window.location.href = result.redirect || 'student_dashboard.html';
                     }
-                    window.location.href = result.redirect;
                 } else {
                     errorMessageDiv.textContent = result.message;
                     errorMessageDiv.style.display = 'block';

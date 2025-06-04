@@ -58,6 +58,15 @@ async function connectDB() {
             console.log("Created 'enrollments' collection");
         }
 
+        if (!collectionNames.includes('officehours')) {
+            await db.createCollection('officehours');
+            console.log("Created 'officehours' collection");
+            
+            // Create indexes for better query performance
+            await db.collection('officehours').createIndex({ tutorUsername: 1 });
+            await db.collection('officehours').createIndex({ day: 1, startTime: 1 });
+        }
+
     } catch (err) {
         console.error("❌ MongoDB connection failed:", err);
     }
@@ -67,6 +76,13 @@ connectDB();
 // Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Frontend', 'Homepage.html'));
+});
+
+// Serve tutor dashboard
+app.get('/tutor-dashboard', (req, res) => {
+    // In a real app, you would verify the user's session here
+    const tutorUsername = req.session?.tutorUsername; // This would come from your session
+    res.sendFile(path.join(__dirname, 'Frontend', 'tutor_dashboard.html'));
 });
 
 // Unified Login Route
@@ -95,12 +111,21 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
-        res.status(200).json({
+        const response = {
             message: 'Login successful!',
-            redirect: `${userType}_dashboard.html`,
             username: user.username,
             userType: userType
-        });
+        };
+
+        if (userType === 'tutor') {
+            // For tutors, redirect to the tutor dashboard with the username in the URL
+            response.redirect = `/tutor-dashboard?username=${encodeURIComponent(user.username)}`;
+        } else {
+            // For students, use the regular dashboard
+            response.redirect = 'student_dashboard.html';
+        }
+
+        res.status(200).json(response);
 
     } catch (err) {
         console.error("Error during login:", err);
@@ -392,6 +417,208 @@ app.get('/health', (req, res) => {
             enrollments: true // Ensure 'enrollments' is in the health check
         }
     });
+});
+
+// Office Hours Endpoints
+
+// Get office hours for a tutor
+app.get('/api/get-office-hours', async (req, res) => {
+    const { tutorUsername } = req.query;
+    console.log('Received request for tutor:', tutorUsername);
+    
+    if (!tutorUsername) {
+        console.error('No tutor username provided');
+        return res.status(400).json({ success: false, message: 'Tutor username is required' });
+    }
+    
+    try {
+        console.log('Querying office hours for tutor:', tutorUsername);
+        
+        // Get all office hours for this tutor
+        const officeHours = await db.collection('officehours')
+            .find({ tutorUsername })
+            .sort({ startTime: 1 })
+            .toArray();
+            
+        console.log('Found office hours:', JSON.stringify(officeHours, null, 2));
+            
+        // Convert MongoDB _id to string for the frontend
+        const formattedOfficeHours = officeHours.map(oh => {
+            const formatted = {
+                ...oh,
+                _id: oh._id.toString()
+            };
+            console.log('Formatted office hour:', JSON.stringify(formatted, null, 2));
+            return formatted;
+        });
+            
+        const response = { 
+            success: true, 
+            officeHours: formattedOfficeHours 
+        };
+        
+        console.log('Sending response:', JSON.stringify(response, null, 2));
+        res.status(200).json(response);
+    } catch (error) {
+        console.error('Error fetching office hours:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error',
+            error: error.message 
+        });
+    }
+});
+
+// Save office hours for a tutor
+app.post('/api/save-office-hours', async (req, res) => {
+    console.log('Received save-office-hours request with body:', req.body);
+    const { tutorUsername, days, startTime, endTime, timezone } = req.body;
+    
+    if (!tutorUsername || !days || !days.length || !startTime || !endTime || !timezone) {
+        console.log('Validation failed - missing fields:', { tutorUsername, days, startTime, endTime, timezone });
+        return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+    
+    try {
+        // Check if the tutor exists
+        console.log('Looking up tutor:', tutorUsername);
+        const tutor = await db.collection('tutors').findOne({ username: tutorUsername });
+        if (!tutor) {
+            console.log('Tutor not found:', tutorUsername);
+            return res.status(404).json({ success: false, message: 'Tutor not found' });
+        }
+        
+        // Create a single document with all selected days
+        const officeHoursDoc = {
+            tutorUsername,
+            days,
+            startTime,
+            endTime,
+            timezone,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+        
+        console.log('Attempting to insert new office hours:', JSON.stringify(officeHoursDoc, null, 2));
+        
+        try {
+            // First, check if there are any existing office hours for this tutor with the same time range
+            await db.collection('officehours').deleteMany({
+                tutorUsername,
+                startTime,
+                endTime,
+                timezone
+            });
+            
+            // Insert the new office hours
+            const result = await db.collection('officehours').insertOne(officeHoursDoc);
+            console.log('Insert result:', result);
+            
+            if (!result.insertedId) {
+                throw new Error('Failed to insert office hours');
+            }
+            
+            // Get the inserted office hours and convert _id to string
+            const insertedOfficeHours = await db.collection('officehours')
+                .findOne({ _id: result.insertedId });
+                
+            console.log('Retrieved inserted office hours:', JSON.stringify(insertedOfficeHours, null, 2));
+            
+            // Convert _id to string for the frontend
+            const formattedOfficeHours = {
+                ...insertedOfficeHours,
+                _id: insertedOfficeHours._id.toString()
+            };
+            
+            res.status(200).json({ 
+                success: true, 
+                message: 'Office hours saved successfully',
+                officeHours: [formattedOfficeHours]
+            });
+        } catch (dbError) {
+            console.error('Database error during office hours insertion:', dbError);
+            throw dbError; // This will be caught by the outer try-catch
+        }
+    } catch (error) {
+        console.error('Error saving office hours:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Remove office hour
+app.post('/api/remove-office-hour', async (req, res) => {
+    const { id, tutorUsername } = req.body;
+    
+    if (!id || !tutorUsername) {
+        return res.status(400).json({ success: false, message: 'ID and tutor username are required' });
+    }
+    
+    try {
+        // Verify the office hour belongs to the tutor
+        let objectId;
+        try {
+            objectId = new ObjectId(id);
+        } catch (error) {
+            console.error('Invalid ID format:', id);
+            return res.status(400).json({ success: false, message: 'Invalid office hour ID' });
+        }
+        
+        const officeHour = await db.collection('officehours').findOne({ _id: objectId });
+        
+        if (!officeHour) {
+            return res.status(404).json({ success: false, message: 'Office hour not found' });
+        }
+        
+        if (officeHour.tutorUsername !== tutorUsername) {
+            return res.status(403).json({ success: false, message: 'Not authorized to remove this office hour' });
+        }
+        
+        // Delete the office hour
+        const result = await db.collection('officehours').deleteOne({ _id: objectId });
+        
+        if (result.deletedCount === 0) {
+            throw new Error('Failed to delete office hour');
+        }
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Office hour removed successfully' 
+        });
+    } catch (error) {
+        console.error('Error removing office hour:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Get office hours for a student's tutor
+app.get('/api/student-office-hours', async (req, res) => {
+    const { studentUsername } = req.query;
+    
+    if (!studentUsername) {
+        return res.status(400).json({ success: false, message: 'Student username is required' });
+    }
+    
+    try {
+        // Get the student's tutor
+        const student = await db.collection('users').findOne({ username: studentUsername });
+        if (!student || !student.tutorUsername) {
+            return res.status(404).json({ success: false, message: 'Student or tutor not found' });
+        }
+        
+        // Get office hours for the student's tutor
+        const officeHours = await db.collection('officehours')
+            .find({ tutorUsername: student.tutorUsername })
+            .sort({ day: 1, startTime: 1 })
+            .toArray();
+        
+        res.status(200).json({
+            success: true,
+            officeHours
+        });
+    } catch (error) {
+        console.error('Error fetching student tutor office hours:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
 });
 
 // Test endpoint

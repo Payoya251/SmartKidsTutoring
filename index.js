@@ -295,6 +295,67 @@ app.get('/api/tutor-students/:tutorUsername', async (req, res) => {
     }
 });
 
+// Add a route to list all routes for debugging
+app.get('/api/routes', (req, res) => {
+    const routes = [];
+    app._router.stack.forEach((middleware) => {
+        if (middleware.route) {
+            routes.push({
+                path: middleware.route.path,
+                methods: Object.keys(middleware.route.methods)
+            });
+        } else if (middleware.name === 'router') {
+            middleware.handle.stack.forEach((handler) => {
+                if (handler.route) {
+                    routes.push({
+                        path: handler.route.path,
+                        methods: Object.keys(handler.route.methods)
+                    });
+                }
+            });
+        }
+    });
+    res.json(routes);
+});
+
+// Remove student enrollment
+app.post('/api/remove-student', async (req, res) => {
+    console.log('Remove student endpoint hit');
+    const { tutorUsername, studentUsername } = req.body;
+    console.log('➡️ /api/remove-student called with:', { tutorUsername, studentUsername });
+
+    try {
+        // Remove the enrollment record
+        const deleteResult = await db.collection('enrollments').deleteOne({
+            tutorUsername: tutorUsername,
+            studentUsername: studentUsername
+        });
+
+        if (deleteResult.deletedCount === 0) {
+            console.log('⚠️ No enrollment found to delete');
+            return res.status(404).json({ success: false, message: 'Enrollment not found' });
+        }
+
+        // Remove student from tutor's students array
+        await db.collection('tutors').updateOne(
+            { username: tutorUsername },
+            { $pull: { students: studentUsername } }
+        );
+
+        // Remove tutor from student's document
+        await db.collection('users').updateOne(
+            { username: studentUsername },
+            { $unset: { tutorUsername: "" } }
+        );
+
+        console.log('✅ Successfully removed enrollment');
+        res.status(200).json({ success: true, message: 'Student removed successfully' });
+    } catch (err) {
+        console.error('🔥 Error removing student enrollment:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 // NEW: Get student's tutor
 app.get('/api/student-tutor/:studentUsername', async (req, res) => {
     const { studentUsername } = req.params;
@@ -331,6 +392,11 @@ app.get('/health', (req, res) => {
             enrollments: true // Ensure 'enrollments' is in the health check
         }
     });
+});
+
+// Test endpoint
+app.get('/api/test', (req, res) => {
+    res.status(200).json({ success: true, message: 'Server is running' });
 });
 
 // Start server

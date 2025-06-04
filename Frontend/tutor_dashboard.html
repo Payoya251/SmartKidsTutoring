@@ -368,13 +368,17 @@
             border-left: 4px solid #dc3545;
         }
 
-        .success-message {
-            color: #28a745;
+        .message {
             margin-top: 10px;
             font-size: 0.9rem;
             padding: 8px 12px;
-            background-color: #d4edda;
             border-radius: 6px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #28a745;
+            background-color: #d4edda;
             border-left: 4px solid #28a745;
         }
     </style>
@@ -425,7 +429,7 @@
             <form id="enroll-form">
                 <input type="text" id="student-username" placeholder="Enter student username" required>
                 <button type="submit" class="btn primary">Enroll Student</button>
-                <p id="enroll-message" style="margin-top: 10px;"></p>
+                <p id="enroll-message" class="message" style="margin-top: 10px; display: none;"></p>
             </form>
         </div>
 
@@ -534,53 +538,69 @@
         }
 
         // Function to remove a student
-        function removeStudent(studentUsername) {
-            const tutorUsername = sessionStorage.getItem('tutorUsername');
-            
-            // Clear previous errors
-            studentsErrors.style.display = 'none';
-            studentsErrors.textContent = '';
-            
-            if (!tutorUsername) {
-                showStudentsError('Error: No se pudo verificar tu sesión. Por favor, recarga la página.');
-                return;
-            }
-            
-            fetch('/api/remove-student', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    tutorUsername: tutorUsername, 
-                    studentUsername: studentUsername 
-                }),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.message || 'Error al eliminar el estudiante');
-                    });
+        async function removeStudent(studentUsername) {
+            try {
+                const tutorUsername = sessionStorage.getItem('tutorUsername');
+                
+                // Validate input
+                if (!studentUsername || typeof studentUsername !== 'string') {
+                    throw new Error('Invalid student username');
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
+                
+                if (!tutorUsername) {
+                    throw new Error('Unable to verify your session. Please refresh the page.');
+                }
+                
+                // Clear previous errors
+                studentsErrors.style.display = 'none';
+                studentsErrors.textContent = '';
+                
+                console.log('Attempting to remove student:', { tutorUsername, studentUsername });
+                
+                console.log('Sending request to remove student:', { 
+                    tutorUsername: tutorUsername.trim(), 
+                    studentUsername: studentUsername.trim() 
+                });
+                
+                try {
+                    const response = await fetch('/api/remove-student', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            tutorUsername: tutorUsername.trim(), 
+                            studentUsername: studentUsername.trim() 
+                        }),
+                    });
+                    
+                    const data = await response.json().catch(() => ({
+                        success: false,
+                        message: 'Invalid response from server'
+                    }));
+                    
+                    console.log('Server response:', data);
+                    
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Failed to remove student');
+                    }
+                    
                     // Update local list
                     enrolledStudents = enrolledStudents.filter(s => {
                         const currentUsername = typeof s === 'object' ? s.username : s;
                         return currentUsername !== studentUsername;
                     });
+                    
                     renderStudentList();
-                    showStudentsSuccess('Estudiante eliminado correctamente');
-                } else {
-                    throw new Error(data.message || 'Error al eliminar el estudiante');
+                    showStudentsSuccess('Student removed successfully');
+                } catch (error) {
+                    console.error('Error removing student:', error);
+                    showStudentsError(error.message || 'An error occurred while removing the student');
                 }
-            })
-            .catch(error => {
-                console.error('Error removing student:', error);
-                showStudentsError(error.message);
-            });
+            } catch (error) {
+                console.error('Error in removeStudent:', error);
+                showStudentsError(error.message || 'An unexpected error occurred');
+            }
         }
 
         // Function to show error message in students section
@@ -646,7 +666,8 @@
 
             // Clear previous messages
             enrollMessage.textContent = '';
-            enrollMessage.className = '';
+            enrollMessage.className = 'message';
+            enrollMessage.style.display = 'none';
 
             if (!studentUsername) {
                 enrollMessage.textContent = 'Por favor ingresa un nombre de usuario';
@@ -665,29 +686,34 @@
                         studentUsername: studentUsername 
                     }),
                 })
-                .then(response => {
+                .then(async response => {
+                    const data = await response.json().catch(() => ({
+                        success: false,
+                        message: 'Invalid response from server'
+                    }));
+                    
                     if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.message || 'Error al inscribir al estudiante');
-                        });
+                        throw new Error(data.message || 'Failed to enroll student');
                     }
-                    return response.json();
+                    
+                    return data;
                 })
                 .then(data => {
-                    if (data.success) {
-                        enrollMessage.textContent = data.message || 'Estudiante inscrito correctamente';
-                        enrollMessage.className = 'success-message';
-                        enrolledStudents.push(studentUsername);
-                        renderStudentList();
-                        studentUsernameInput.value = '';
-                    } else {
-                        throw new Error(data.message || 'Error al inscribir al estudiante');
-                    }
+                    // Clear any previous messages
+                    enrollMessage.textContent = '';
+                    enrollMessage.style.display = 'none';
+                    
+                    // Show success message
+                    showStudentsSuccess(data.message || 'Student enrolled successfully');
+                    
+                    // Update UI
+                    enrolledStudents.push(studentUsername);
+                    renderStudentList();
+                    studentUsernameInput.value = '';
                 })
                 .catch(error => {
                     console.error('Error enrolling student:', error);
-                    enrollMessage.textContent = error.message;
-                    enrollMessage.className = 'error-message';
+                    showStudentsError(error.message || 'Failed to enroll student');
                 });
             } else {
                 window.location.href = 'login.html';

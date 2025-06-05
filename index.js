@@ -406,6 +406,60 @@ app.get('/api/student-tutor/:studentUsername', async (req, res) => {
     }
 });
 
+// Get student's tutor and their office hours
+app.get('/api/student/tutor-info', async (req, res) => {
+    const { studentUsername } = req.query;
+    
+    if (!studentUsername) {
+        return res.status(400).json({ success: false, message: 'Student username is required' });
+    }
+    
+    try {
+        // Find the student's enrollment to get tutor username
+        const enrollment = await db.collection('enrollments').findOne({ studentUsername });
+        
+        if (!enrollment) {
+            return res.json({ success: true, hasTutor: false, message: 'No tutor assigned' });
+        }
+        
+        const tutorUsername = enrollment.tutorUsername;
+        
+        // Get tutor's details
+        const tutor = await db.collection('tutors').findOne({ username: tutorUsername });
+        
+        if (!tutor) {
+            return res.status(404).json({ success: false, message: 'Tutor not found' });
+        }
+        
+        // Get tutor's office hours from the tutor document
+        const officeHours = tutor.officeHours || [];
+            
+        // Format the response
+        const response = {
+            success: true,
+            hasTutor: true,
+            tutor: {
+                username: tutor.username,
+                name: tutor.name,
+                email: tutor.email,
+                subject: tutor.subject,
+                availability: tutor.availability
+            },
+            officeHours: officeHours.map(oh => ({
+                days: [oh.day],  // Convert single day to array for consistency
+                startTime: oh.startTime,
+                endTime: oh.endTime,
+                timezone: oh.timezone
+            }))
+        };
+        
+        res.json(response);
+    } catch (error) {
+        console.error('Error fetching tutor info:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({

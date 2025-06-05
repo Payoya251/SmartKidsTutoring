@@ -345,31 +345,275 @@
     </div>
 
     <div class="card">
-      <h3>Assigned Tutor</h3>
-      <div id="tutor-info">
-        <p id="tutor-name">Loading tutor information...</p>
-        <p id="tutor-contact"></p>
-        <p id="tutor-subjects"></p>
-        <p id="tutor-experience"></p>
+      <!-- Tutor Information Section -->
+      <div class="tutor-info">
+        <h2>Your Tutor</h2>
+        <div id="tutor-name">Loading tutor information...</div>
+        <div id="tutor-contact"></div>
+        <div id="tutor-subjects"></div>
+        <div id="tutor-experience"></div>
+        <div class="office-hours-section" style="margin-top: 20px;">
+          <h3>Office Hours</h3>
+          <div id="office-hours-list">
+            <p>Loading office hours...</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Show username in welcome message
+    // Format time to 12-hour format
+    function formatTime(time24) {
+      if (!time24) return '';
+      
+      // Handle different time formats
+      let [hours, minutes] = time24.split(':');
+      hours = parseInt(hours, 10);
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      return `${hours}:${minutes} ${ampm}`;
+    }
+
+    // Render office hours in the UI
+    function renderOfficeHours(officeHours) {
+      const officeHoursList = document.getElementById('office-hours-list');
+      if (!officeHoursList) return;
+
+      if (!Array.isArray(officeHours) || officeHours.length === 0) {
+        officeHoursList.innerHTML = '<p>No office hours scheduled yet.</p>';
+        return;
+      }
+
+      console.log('Rendering office hours:', officeHours);
+      
+      // Group office hours by time range and timezone
+      const timeSlots = new Map();
+      
+      officeHours.forEach(oh => {
+        if (!oh || !oh.days || !oh.startTime || !oh.endTime) return;
+        
+        const timeKey = `${oh.startTime}-${oh.endTime}-${oh.timezone}`;
+        
+        if (!timeSlots.has(timeKey)) {
+          timeSlots.set(timeKey, {
+            days: new Set(),
+            startTime: oh.startTime,
+            endTime: oh.endTime,
+            timezone: oh.timezone
+          });
+        }
+        
+        // Add all days for this time slot (oh.days is now an array from the backend)
+        oh.days.forEach(day => {
+          if (day) {
+            timeSlots.get(timeKey).days.add(day);
+          }
+        });
+      });
+
+      // Generate HTML for each time slot
+      let html = '';
+      timeSlots.forEach(slot => {
+        const days = Array.from(slot.days).sort((a, b) => {
+          const dayOrder = {monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6, sunday: 7};
+          return (dayOrder[a.toLowerCase()] || 99) - (dayOrder[b.toLowerCase()] || 99);
+        });
+        
+        if (days.length === 0) return; // Skip if no valid days
+        
+        const formattedStart = formatTime(slot.startTime);
+        const formattedEnd = formatTime(slot.endTime);
+        
+        html += `
+          <div class="time-slot" style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">${formattedStart} - ${formattedEnd} (${slot.timezone})</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+              ${days.map(day => 
+                `<span style="display: inline-block; background: #e9ecef; padding: 3px 8px; border-radius: 3px;">
+                  ${day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()}
+                </span>`
+              ).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      officeHoursList.innerHTML = html || '<p>No office hours scheduled yet.</p>';
+    }
+
+    // Fetch and display tutor information and office hours
+    async function loadTutorInfo() {
+      console.log('Loading tutor information...');
+      const studentUsername = localStorage.getItem('username');
+      
+      // Get all elements
+      const tutorNameElement = document.getElementById('tutor-name');
+      const tutorContactElement = document.getElementById('tutor-contact');
+      const tutorSubjectsElement = document.getElementById('tutor-subjects');
+      const tutorExperienceElement = document.getElementById('tutor-experience');
+      const officeHoursList = document.getElementById('office-hours-list');
+      
+      // Debug: Log element existence
+      console.log('Tutor name element exists:', !!tutorNameElement);
+      console.log('Tutor contact element exists:', !!tutorContactElement);
+      console.log('Tutor subjects element exists:', !!tutorSubjectsElement);
+      console.log('Tutor experience element exists:', !!tutorExperienceElement);
+      console.log('Office hours list exists:', !!officeHoursList);
+
+      // Helper function to clear tutor info
+      function clearTutorInfo() {
+        console.log('Clearing tutor info');
+        if (tutorNameElement) tutorNameElement.textContent = 'No tutor assigned yet';
+        if (tutorContactElement) tutorContactElement.textContent = '';
+        if (tutorSubjectsElement) tutorSubjectsElement.textContent = '';
+        if (tutorExperienceElement) tutorExperienceElement.textContent = '';
+        if (officeHoursList) officeHoursList.innerHTML = '<p>No tutor assigned yet.</p>';
+      }
+
+      if (!studentUsername) {
+        if (tutorNameElement) tutorNameElement.textContent = 'Please log in to view tutor information';
+        return;
+      }
+
+      try {
+        console.log('Fetching tutor info for student:', studentUsername);
+        const apiUrl = `/api/student-tutor/${encodeURIComponent(studentUsername)}`;
+        console.log('Making request to:', apiUrl);
+        
+        // First check if student has a tutor assigned in the enrollments
+        const enrollmentResponse = await fetch(apiUrl, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          credentials: 'include'  // Important for cookies/sessions
+        });
+        
+        console.log('Response status:', enrollmentResponse.status);
+        
+        if (!enrollmentResponse.ok) {
+          const errorText = await enrollmentResponse.text();
+          console.error('Error response:', errorText);
+          throw new Error(`Failed to fetch tutor information: ${enrollmentResponse.status} ${errorText}`);
+        }
+        
+        const tutor = await enrollmentResponse.json();
+        console.log('Received tutor data:', tutor);
+        
+        if (!tutor) {
+          console.log('No tutor data received');
+          clearTutorInfo();
+          return;
+        }
+        
+        // Debug: Log all properties of the tutor object
+        console.log('Tutor object keys:', Object.keys(tutor));
+        console.log('Tutor object values:', JSON.stringify(tutor, null, 2));
+        
+        // Check if this is a success wrapper object
+        if (tutor.success !== undefined && tutor.tutor) {
+          console.log('Found tutor data inside success wrapper');
+          Object.assign(tutor, tutor.tutor);
+        }
+        
+        // Check if this is the direct tutor response format
+        if (tutor.message === 'Tutor not found' || tutor.message === 'Tutor not assigned yet') {
+          console.log('Tutor not found or not assigned');
+          clearTutorInfo();
+          return;
+        }
+        
+        console.log('Tutor found, updating UI elements');
+        console.log('Tutor object:', JSON.stringify(tutor, null, 2));
+        
+        // Get the tutor's username - check all possible properties
+        const tutorUsername = tutor.username || tutor.tutorUsername || tutor.email?.split('@')[0];
+        console.log('Available tutor properties:', {
+          username: tutor.username,
+          tutorUsername: tutor.tutorUsername,
+          email: tutor.email,
+          usingUsername: tutorUsername
+        });
+        
+        if (!tutorUsername) {
+          console.error('No username found in tutor object');
+          if (officeHoursList) officeHoursList.innerHTML = '<p>Error: Could not determine tutor identifier</p>';
+          return;
+        }
+        
+        if (tutorNameElement) tutorNameElement.textContent = `Tutor: ${tutor.name || 'Not specified'}`;
+        if (tutorContactElement) tutorContactElement.textContent = `Email: ${tutor.email || 'Not specified'}`;
+        if (tutorSubjectsElement) tutorSubjectsElement.textContent = `Subject: ${tutor.subject || 'Not specified'}`;
+        if (tutorExperienceElement) tutorExperienceElement.textContent = `Availability: ${tutor.availability || 'Not specified'}`;
+
+        // First check if office hours are embedded in the tutor object
+        if (tutor.officeHours && Array.isArray(tutor.officeHours) && tutor.officeHours.length > 0) {
+          console.log('Using embedded office hours from tutor object:', tutor.officeHours);
+          renderOfficeHours(tutor.officeHours);
+        } else {
+          // Fall back to fetching from the office hours collection
+          try {
+            if (!tutorUsername) {
+              throw new Error('Tutor username is not available');
+            }
+            
+            console.log('Fetching office hours from office hours collection for tutor:', tutorUsername);
+            const officeHoursResponse = await fetch(`/api/get-office-hours?tutorUsername=${encodeURIComponent(tutorUsername)}`);
+            
+            if (!officeHoursResponse.ok) {
+              const errorText = await officeHoursResponse.text();
+              console.error('Error response from office hours API:', errorText);
+              throw new Error(`Failed to fetch office hours: ${officeHoursResponse.status} ${errorText}`);
+            }
+            
+            const responseData = await officeHoursResponse.json();
+            // Check if the response has an officeHours array or is the array itself
+            const officeHours = Array.isArray(responseData) ? responseData : (responseData.officeHours || []);
+            console.log('Received office hours from API:', officeHours);
+            
+            if (Array.isArray(officeHours) && officeHours.length > 0) {
+              renderOfficeHours(officeHours);
+            } else if (officeHoursList) {
+              officeHoursList.innerHTML = '<p>No office hours scheduled yet.</p>';
+            }
+          } catch (error) {
+            console.error('Error fetching office hours:', error);
+            if (officeHoursList) {
+              officeHoursList.innerHTML = `
+                <div style="color: #dc3545; margin-top: 10px;">
+                  <p>Error loading office hours. ${error.message || 'Please try again later.'}</p>
+                  <p>If this issue persists, please contact support.</p>
+                </div>`;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading tutor information:', error);
+        clearTutorInfo();
+        if (officeHoursList) officeHoursList.innerHTML = '<p>Error loading tutor information. Please refresh the page.</p>';
+      }
+    }
+    
+    // Initialize the page
     document.addEventListener('DOMContentLoaded', function() {
+      // Show username in welcome message
       const username = localStorage.getItem('username');
       const welcomeMessage = document.getElementById('welcome-message');
 
       if (username && welcomeMessage) {
         welcomeMessage.textContent = `Welcome, ${username}!`;
       }
-    });
-    
-    // Sidebar Toggle Functionality
-    document.getElementById('toggle-btn').addEventListener('click', function() {
-      document.getElementById('sidebar').classList.toggle('active');
-      document.getElementById('content').classList.toggle('shifted');
+      
+      // Load tutor information
+      loadTutorInfo();
+      
+      // Sidebar Toggle Functionality
+      document.getElementById('toggle-btn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('content').classList.toggle('shifted');
+      });
     });
 
     // Calendar Functionality
@@ -466,47 +710,6 @@
         }
       }
 
-      // Fetch and display tutor information
-      document.addEventListener('DOMContentLoaded', function() {
-        const studentUsername = localStorage.getItem('username');
-        const tutorNameElement = document.getElementById('tutor-name');
-        const tutorContactElement = document.getElementById('tutor-contact');
-        const tutorSubjectsElement = document.getElementById('tutor-subjects');
-        const tutorExperienceElement = document.getElementById('tutor-experience');
-
-        if (studentUsername) {
-          fetch(`/api/student-tutor/${studentUsername}`)
-            .then(response => {
-              if (!response.ok) throw new Error('Network response was not ok');
-              return response.json();
-            })
-            .then(data => {
-              if (data.error) {
-                tutorNameElement.textContent = 'No tutor assigned yet';
-                tutorContactElement.textContent = '';
-                tutorSubjectsElement.textContent = '';
-                tutorExperienceElement.textContent = '';
-                return;
-              }
-
-              // Update tutor information
-              tutorNameElement.textContent = `Tutor: ${data.tutor.name}`;
-              tutorContactElement.textContent = `Email: ${data.tutor.email}`;
-              tutorSubjectsElement.textContent = `Subjects: ${data.tutor.subjects.join(', ')}`;
-              tutorExperienceElement.textContent = `Experience: ${data.tutor.experience}`;
-            })
-            .catch(error => {
-              console.error('Error fetching tutor:', error);
-              tutorNameElement.textContent = 'Error loading tutor information';
-              tutorContactElement.textContent = '';
-              tutorSubjectsElement.textContent = '';
-              tutorExperienceElement.textContent = '';
-            });
-        } else {
-          tutorNameElement.textContent = 'Please login to view tutor information';
-        }
-      });
-      
       // Event listeners for month navigation
       prevMonthButton.addEventListener('click', function() {
         currentDate.setMonth(currentDate.getMonth() - 1);
